@@ -7,6 +7,14 @@ import { Upload, FileText, Check, Settings } from 'lucide-react';
 
 const StyleProfile = () => {
   const [activeTab, setActiveTab] = useState('calibration');
+  const [uploadedFiles, setUploadedFiles] = useState([]);
+
+  const handleFileUpload = (e) => {
+    if (e.target.files?.length > 0) {
+      const newFiles = Array.from(e.target.files).map(f => f.name);
+      setUploadedFiles(prev => [...prev, ...newFiles]);
+    }
+  };
 
   const ToggleRow = ({ label, description, defaultChecked = false }) => (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid var(--color-plum-dark)' }}>
@@ -64,7 +72,31 @@ const StyleProfile = () => {
                 <Upload size={32} className="text-muted" style={{ margin: '0 auto 16px' }} />
                 <div style={{ fontWeight: '500', marginBottom: '8px' }}>Upload Style Guide or Sample</div>
                 <div className="text-muted" style={{ fontSize: '0.875rem', marginBottom: '16px' }}>PDF, DOCX, or TXT</div>
-                <Button variant="secondary" size="sm">Browse Files</Button>
+                
+                <input 
+                  type="file" 
+                  id="style-upload" 
+                  multiple 
+                  style={{ display: 'none' }} 
+                  onChange={handleFileUpload} 
+                />
+                
+                <label htmlFor="style-upload">
+                  <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', height: '36px', padding: '0 16px', borderRadius: '4px', border: '1px solid var(--color-plum-border)', backgroundColor: 'transparent', cursor: 'pointer', fontSize: '0.875rem', fontWeight: '500', color: 'var(--color-text-main)', transition: 'background-color 0.2s ease' }} onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-plum-dark)'} onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}>
+                    Browse Files
+                  </div>
+                </label>
+                
+                {uploadedFiles.length > 0 && (
+                  <div style={{ marginTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+                    {uploadedFiles.map((fileName, idx) => (
+                      <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: 'var(--color-obsidian)', padding: '6px 12px', borderRadius: '16px', fontSize: '0.8rem', border: '1px solid var(--color-gold-muted)' }}>
+                        <FileText size={14} className="text-gold" />
+                        {fileName}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </Card>
 

@@ -31,7 +31,7 @@ const Dashboard = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 'var(--spacing-xl)' }}>
         <div>
           <h1 style={{ fontSize: '2rem', marginBottom: '8px' }}>Studio Dashboard</h1>
-          <p className="text-muted">Welcome back, Author. You have 2 active projects.</p>
+          <p className="text-muted">Welcome to the Revision Studio. Start a new chapter review below.</p>
         </div>
         <Button onClick={() => navigate('/new-review')}>+ New Chapter Review</Button>
       </div>
@@ -41,7 +41,7 @@ const Dashboard = () => {
           <div style={statCardStyle}>
             <div style={iconContainerStyle}><BookOpen size={24} /></div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: '#fff' }}>14</div>
+              <div style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: '#fff' }}>0</div>
               <div className="text-muted" style={{ fontSize: '0.875rem' }}>Chapters Reviewed</div>
             </div>
           </div>
@@ -50,7 +50,7 @@ const Dashboard = () => {
           <div style={statCardStyle}>
             <div style={iconContainerStyle}><Clock size={24} /></div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: '#fff' }}>6</div>
+              <div style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: '#fff' }}>0</div>
               <div className="text-muted" style={{ fontSize: '0.875rem' }}>Priority Revisions</div>
             </div>
           </div>
@@ -59,7 +59,7 @@ const Dashboard = () => {
           <div style={statCardStyle}>
             <div style={iconContainerStyle}><FileText size={24} /></div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: '#fff' }}>2</div>
+              <div style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: '#fff' }}>0</div>
               <div className="text-muted" style={{ fontSize: '0.875rem' }}>Reports Ready</div>
             </div>
           </div>
@@ -68,7 +68,7 @@ const Dashboard = () => {
           <div style={statCardStyle}>
             <div style={iconContainerStyle}><CheckCircle size={24} /></div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: '#fff' }}>8.4</div>
+              <div style={{ fontSize: '1.5rem', fontFamily: 'var(--font-serif)', color: '#fff' }}>--</div>
               <div className="text-muted" style={{ fontSize: '0.875rem' }}>Avg. Tension Score</div>
             </div>
           </div>
@@ -78,25 +78,10 @@ const Dashboard = () => {
       <h2 style={{ fontSize: '1.5rem', marginBottom: 'var(--spacing-md)' }}>Recent Chapter Reviews</h2>
       
       <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
-        {[1, 2, 3].map((item) => (
-          <Card key={item} padding="sm" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-              <div>
-                <div style={{ fontWeight: '600', color: '#fff', fontSize: '1.1rem' }}>Chapter {item + 12}: The Blood Tithe</div>
-                <div className="text-muted" style={{ fontSize: '0.875rem' }}>Crown of Shadow and Glass</div>
-              </div>
-              <Badge variant={item === 1 ? 'gold' : 'green'}>{item === 1 ? 'In Progress' : 'Completed'}</Badge>
-            </div>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <div style={{ textAlign: 'right', marginRight: '16px' }}>
-                <div style={{ fontSize: '0.875rem', color: 'var(--color-text-muted)' }}>Last edited</div>
-                <div style={{ fontSize: '0.875rem', color: '#fff' }}>2 days ago</div>
-              </div>
-              <Button variant="secondary" onClick={() => navigate(`/workspace/${item}`)}>Open Workspace</Button>
-            </div>
-          </Card>
-        ))}
+        <Card padding="sm" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '48px', border: '1px dashed var(--color-plum-dark)', backgroundColor: 'transparent', boxShadow: 'none' }}>
+          <p style={{ color: 'var(--color-text-muted)', marginBottom: '16px' }}>No chapter reviews have been generated yet.</p>
+          <Button variant="secondary" onClick={() => navigate('/new-review')}>Start Your First Review</Button>
+        </Card>
       </div>
     </div>
   );

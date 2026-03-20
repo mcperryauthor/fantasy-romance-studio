@@ -15,7 +15,6 @@ const Landing = () => {
           The Editorial Grimoire
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
-          <Button variant="ghost" onClick={() => navigate('/dashboard')}>Log In</Button>
           <Button variant="primary" onClick={() => navigate('/dashboard')}>Enter Studio</Button>
         </div>
       </header>

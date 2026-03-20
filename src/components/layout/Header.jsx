@@ -67,15 +67,6 @@ const Header = () => {
         <button style={iconButtonStyle} onMouseOver={(e) => e.currentTarget.style.color = 'var(--color-gold-muted)'} onMouseOut={(e) => e.currentTarget.style.color = 'var(--color-text-muted)'}>
           <Bell size={20} />
         </button>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-          <div style={{
-            width: '36px', height: '36px', borderRadius: '50%', backgroundColor: 'var(--color-burgundy)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
-          }}>
-            <User size={18} />
-          </div>
-          <span style={{ fontSize: '0.875rem', fontWeight: '500' }}>Author Workspace</span>
-        </div>
       </div>
     </header>
   );

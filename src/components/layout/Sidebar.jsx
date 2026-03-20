@@ -60,6 +60,11 @@ const Sidebar = () => {
       <nav style={{ flex: 1 }}>
         <ul style={navListStyle}>
           <li>
+            <NavLink to="/style-profile" style={({ isActive }) => linkStyle(isActive)}>
+              <Feather size={18} /> Style & Voice Calibration
+            </NavLink>
+          </li>
+          <li>
             <NavLink to="/dashboard" style={({ isActive }) => linkStyle(isActive)}>
               <Home size={18} /> Dashboard
             </NavLink>
@@ -67,11 +72,6 @@ const Sidebar = () => {
           <li>
             <NavLink to="/new-review" style={({ isActive }) => linkStyle(isActive)}>
               <PlusCircle size={18} /> New Chapter Review
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/style-profile" style={({ isActive }) => linkStyle(isActive)}>
-              <Feather size={18} /> Style & Voice Profiles
             </NavLink>
           </li>
           <li>

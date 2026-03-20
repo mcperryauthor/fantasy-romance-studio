@@ -15,7 +15,7 @@ const Landing = () => {
           The Editorial Grimoire
         </div>
         <div style={{ display: 'flex', gap: '16px' }}>
-          <Button variant="primary" onClick={() => navigate('/dashboard')}>Enter Studio</Button>
+          <Button variant="primary" onClick={() => navigate('/style-profile')}>Enter Studio</Button>
         </div>
       </header>
       
@@ -27,7 +27,7 @@ const Landing = () => {
           Track pacing, tension, voice, and prose with a system designed for romantasy and emotionally intense commercial fiction.
         </p>
         <div style={{ display: 'flex', gap: '20px' }}>
-          <Button variant="primary" size="lg" onClick={() => navigate('/dashboard')}>Start Your First Review</Button>
+          <Button variant="primary" size="lg" onClick={() => navigate('/style-profile')}>Start Your First Review</Button>
           <Button variant="outline" size="lg">Explore the Method</Button>
         </div>
       </main>

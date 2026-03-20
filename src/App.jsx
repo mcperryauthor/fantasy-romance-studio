@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 
 // Pages
 import Landing from './pages/Landing';
@@ -17,7 +17,7 @@ import MainLayout from './components/layout/MainLayout';
 
 function App() {
   return (
-    <Router basename={import.meta.env.BASE_URL}>
+    <Router>
       <Routes>
         <Route path="/" element={<Landing />} />
         

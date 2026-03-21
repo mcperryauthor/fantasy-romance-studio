@@ -107,8 +107,9 @@ const ReportView = () => {
                    {/* Pacing & Structure */}
                    <div style={{ backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px' }}>
                      <h5 style={{ fontSize: '1rem', color: '#7b2c3a', marginBottom: '12px', borderBottom: '1px solid rgba(123,44,58,0.2)', paddingBottom: '4px' }}>Pacing & Structure</h5>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Flow:</strong> {a.pacing?.flowPattern || 'Balanced'}</p>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Action:</strong> {a.pacing?.actionPct || 0}% | <strong>Dialogue:</strong> {a.pacing?.dialogueRatio || 0}% | <strong>Reactive Internality:</strong> {a.pacing?.reactivePct || 0}% | <strong>Introspection:</strong> {a.pacing?.introspectPct || 0}%</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Pacing Type:</strong> {a.pacing?.unified?.pacingType || 'Balanced'}</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Flow Analysis:</strong> {a.pacing?.unified?.flowAnalysis || 'Balanced'}</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Drivers:</strong> Action: {a.pacing?.unified?.drivers?.action || 0}% | Emotional Change: {a.pacing?.unified?.drivers?.emotionalChange || 'LOW'} | Expo Load: {a.pacing?.unified?.drivers?.expositionLoad || 'LOW'} | Reactive: {a.pacing?.unified?.drivers?.reactiveInternality || 'ABSENT'}</p>
                      <ul style={{ paddingLeft: '20px', margin: '8px 0', fontSize: '0.9rem', color: '#333' }}>
                         {a.pacing?.flags?.map((f, i) => <li key={`pf-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}
                         {a.purpose?.flags?.map((f, i) => <li key={`cf-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}

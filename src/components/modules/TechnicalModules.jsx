@@ -97,10 +97,11 @@ export const ModulePacing = ({ chapter, onSelectFlag, activeFlag }) => {
   return (
     <Card glow>
       <SectionHeader title="Narrative Flow & Momentum" />
-      <CoreRuleBanner rule="Pacing is the balance between movement and weight. Too much of either kills momentum." />
+      <CoreRuleBanner rule="Pacing is the rate of structural change. True momentum requires emotional shifts, power plays, and escalation, regardless of physical speed." />
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
-        <StatCard label="Pacing Score" value={`${p.score || 0}/100`} color={p.score < 60 ? '#ffb8b8' : '#4cA87a'} />
+        <StatCard label="Pacing Velocity" value={`${p.unified?.pacingType || 'Balanced'}`} color={p.unified?.pacingType === 'Stalled' ? '#ffb8b8' : '#4cA87a'} />
+        <StatCard label="Flow State" value={`${p.unified?.flowAnalysis || '-'}`} color={p.unified?.flowAnalysis === 'Escalating' ? 'var(--color-gold-muted)' : 'var(--color-ivory)'} />
         <StatCard label="Action Blocks" value={`${p.actionPct || 0}%`} color="var(--color-ivory)" />
         <StatCard label="Dialogue" value={`${p.dialogueRatio || 0}%`} color="var(--color-ivory)" />
         <StatCard label="Reactive Internality" value={`${p.reactivePct || 0}%`} color="var(--color-ivory)" />

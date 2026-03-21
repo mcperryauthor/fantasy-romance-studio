@@ -431,6 +431,51 @@ export function analyzeManuscript(chapters, settings = {}) {
         );
     }
     
+    // ─── UNIFIED PACING DETECTOR (RULE-BASED SYSTEM) ───
+    // 1. Calculate Drivers
+    const hasPower = analysis.romance.flags.some(f => f.message.toLowerCase().includes('power')) || analysis.romance.totalTension > 6;
+    const emotionalChangeRate = (isShift || hasPower) ? 'HIGH' : (hasReactive ? 'MED' : 'LOW');
+    const expositionLoad = analysis.exposition.density > 20 ? 'HIGH' : (analysis.exposition.density > 5 ? 'MED' : 'LOW');
+    const reactiveInternality = hasReactive ? 'PRESENT' : 'ABSENT';
+
+    // 2. Classify Flow
+    let flowAnalysis = 'Interrupted';
+    if (analysis.pacing.flags.some(f => f.type === 'Static Introspection' || f.type.includes('Discon'))) {
+        flowAnalysis = 'Repetitive';
+    } else if (emotionalChangeRate === 'HIGH' || analysis.romance.totalTension > 6 || analysis.pacing.interactionReactionResponse) {
+        flowAnalysis = 'Escalating';
+    }
+
+    // 3. Classify Pacing Type
+    let pacingType = 'Balanced';
+    if (!isShift && expositionLoad === 'LOW' && !hasBehavior && analysis.pacing.actionPct < 15) {
+        pacingType = 'Stalled';
+        analysis.pacing.flags.push({type: 'Scene Stall', severity: -15, message: 'No emotional shift, no new information, and no behavior change detected. Subsurface drag.'});
+    } else if (expositionLoad === 'HIGH' || flowAnalysis === 'Repetitive') {
+        pacingType = 'Slow';
+    } else if (emotionalChangeRate === 'HIGH' || analysis.pacing.actionPct > 40) {
+        pacingType = 'Fast';
+    }
+    
+    // PACING OVERRIDE RULE
+    if (hasReactive || hasBehavior || isShift || flowAnalysis === 'Escalating') {
+        if (pacingType === 'Slow' || pacingType === 'Stalled') {
+            pacingType = 'Balanced'; // Overridden by momentum
+        }
+    }
+
+    // Attach to the final pacing object for the UI to consume:
+    analysis.pacing.unified = {
+        pacingType,
+        drivers: {
+            action: analysis.pacing.actionPct,
+            emotionalChange: emotionalChangeRate,
+            expositionLoad,
+            reactiveInternality
+        },
+        flowAnalysis
+    };
+    
     return { ...chapter, analysis };
   })
   

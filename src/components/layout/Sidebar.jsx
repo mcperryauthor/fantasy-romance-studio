@@ -65,16 +65,6 @@ const Sidebar = () => {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/dashboard" style={({ isActive }) => linkStyle(isActive)}>
-              <Home size={18} /> Dashboard
-            </NavLink>
-          </li>
-          <li>
-            <NavLink to="/new-review" style={({ isActive }) => linkStyle(isActive)}>
-              <PlusCircle size={18} /> New Chapter Review
-            </NavLink>
-          </li>
-          <li>
             <NavLink to="/report/dummy" style={({ isActive }) => linkStyle(isActive)}>
               <FileText size={18} /> Reports Archive
             </NavLink>

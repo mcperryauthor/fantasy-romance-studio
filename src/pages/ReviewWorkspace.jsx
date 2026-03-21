@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { useProject } from '../context/ProjectContext';
 import ManuscriptDashboard from '../components/ManuscriptDashboard';
-import HighlightedManuscript from '../components/HighlightedManuscript';
+import ManuscriptDashboard from '../components/ManuscriptDashboard';
 import { analysisModules } from '../data/modulesConfig';
 import { Edit3 } from 'lucide-react';
 
@@ -112,28 +112,23 @@ const ReviewWorkspace = () => {
           </main>
         ) : (
           <>
-            {/* CENTER HIGHLIGHTED READER VIEW */}
-            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#0f0e0e', borderRight: '1px solid var(--color-plum-dark)', overflowY: 'hidden' }}>
+            {/* MAIN AREA: TECHNICAL DASHBOARD */}
+            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#0a0909', overflowY: 'hidden' }}>
+               {/* 1. Header with Chapter Title */}
                <div style={{ padding: '16px 32px', borderBottom: '1px solid var(--color-plum-dark)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--color-charcoal)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     {activeChapter.pov && (
                       <span style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 600, backgroundColor: 'rgba(168, 139, 93, 0.15)', color: 'var(--color-gold-muted)', border: '1px solid rgba(168, 139, 93, 0.3)' }}>{activeChapter.pov} POV</span>
                      )}
-                    <h1 style={{ fontFamily: 'var(--font-serif)', m: 0, fontSize: '1.25rem', color: '#fff' }}>{activeChapter.title}</h1>
+                    <h1 style={{ fontFamily: 'var(--font-serif)', margin: 0, fontSize: '1.25rem', color: '#fff' }}>{activeChapter.title}</h1>
                   </div>
                   <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
                     <span>{activeChapter.wordCount?.toLocaleString()} words</span>
                   </div>
                </div>
-               <div style={{ flex: 1, overflowY: 'auto' }}>
-                  <HighlightedManuscript chapter={activeChapter} activeFlag={activeFlag} />
-               </div>
-            </main>
 
-            {/* RIGHT SIDEBAR (TECHNICAL MODULES) */}
-            <aside style={{ width: '400px', display: 'flex', flexDirection: 'column', backgroundColor: '#0a0909', flexShrink: 0 }}>
                {/* Horizontal Tabs */}
-               <nav style={{ padding: '0 16px', borderBottom: '1px solid var(--color-plum-dark)', display: 'flex', gap: '16px', overflowX: 'auto', flexShrink: 0, backgroundColor: 'var(--color-charcoal)' }}>
+               <nav style={{ padding: '0 32px', borderBottom: '1px solid var(--color-plum-dark)', display: 'flex', gap: '16px', overflowX: 'auto', flexShrink: 0, backgroundColor: 'var(--color-charcoal)' }}>
                  {analysisModules.map(mod => (
                     <button
                        key={mod.id}
@@ -145,7 +140,7 @@ const ReviewWorkspace = () => {
                  ))}
                </nav>
 
-               <div style={{ flex: 1, overflowY: 'auto', padding: '24px 16px' }}>
+               <div style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
                   <ActiveComponent chapter={activeChapter} onSelectFlag={setActiveFlag} activeFlag={activeFlag} />
                </div>
 
@@ -159,7 +154,7 @@ const ReviewWorkspace = () => {
                      style={{ flex: 1, backgroundColor: 'transparent', border: 'none', color: '#fff', fontSize: '0.9rem', fontFamily: 'var(--font-sans)', resize: 'none', outline: 'none', lineHeight: 1.5 }}
                   />
                </div>
-            </aside>
+            </main>
           </>
         )}
       </div>

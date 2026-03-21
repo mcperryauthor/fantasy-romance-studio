@@ -11,9 +11,10 @@ const ENV_INTERACTION = ['door', 'glass', 'shattered', 'table', 'chair', 'wall',
 
 // STEP 2: INTROSPECTION LEXICON
 const THOUGHT_MARKERS = ['thought', 'knew', 'realized', 'wondered', 'felt', 'seemed', "couldn't", 'why', 'how'];
-const EMOTION_PROCESSING = ['fear', 'guilt', 'desire', 'shame', 'longing', 'ache', 'weight', 'pressure', 'panic', 'angry', 'furious', 'sad', 'empty'];
+const EMOTION_PROCESSING = ['fear', 'guilt', 'desire', 'shame', 'longing', 'ache', 'weight', 'pressure', 'panic', 'angry', 'furious', 'sad', 'empty', 'thrill'];
 const MEMORY_MARKERS = ['before', 'once', 'used to', 'remembered', 'had been', 'memory', 'past'];
 const HYPOTHETICALS = ['what if', 'maybe', "shouldn't", "can't", 'perhaps', 'if only'];
+const SENSORY_JUDGMENT = ['ruthless', 'beautiful', 'sickly', 'brittle', 'violent', 'benevolent', 'perfect', 'flawless', 'effortless', 'eternal', 'warm', 'cold', 'sharp', 'soft', 'heavy', 'light', 'dark', 'bright', 'bitter', 'sweet', 'hollow', 'cruel', 'kind', 'harsh', 'gentle'];
 
 // Helpers
 function countHits(text, lexicons) {
@@ -46,7 +47,7 @@ export function scanPacing(chapter) {
         const paragraphs = text.split(/\\n\\s*\\n|\\n/).filter(p => p.trim());
         if (paragraphs.length === 0) return;
 
-        totalDialogueBlocks += paragraphs.filter(p => /["“'”’]/.test(p)).length;
+        totalDialogueBlocks += paragraphs.filter(p => /["“”]/.test(p)).length;
 
         let actionStreak = 0;
         let introStreak = 0;
@@ -70,8 +71,9 @@ export function scanPacing(chapter) {
             const emotionHits = countHits(p, EMOTION_PROCESSING);
             const memoryHits = countHits(p, MEMORY_MARKERS);
             const hypoHits = countHits(p, HYPOTHETICALS);
+            const judgmentHits = countHits(p, SENSORY_JUDGMENT);
             
-            const totalIntroSignals = thoughtHits + emotionHits + memoryHits + hypoHits;
+            const totalIntroSignals = thoughtHits + emotionHits + memoryHits + hypoHits + judgmentHits;
 
             // STEP 3: SEGMENT CLASSIFICATION
             let classification = 'Neutral';

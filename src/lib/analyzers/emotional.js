@@ -78,7 +78,15 @@ export function scanEmotionalArc(chapter) {
     }
     
     // Clean up adjacent duplicates
-    const finalArc = arcPoints.filter((s, i) => i === 0 || s !== arcPoints[i-1]);
+    let finalArc = arcPoints.filter((s, i) => i === 0 || s !== arcPoints[i-1]);
+    
+    // --- END-STATE VALIDATION RULE (Control vs Suppression) ---
+    // If the character suffered emotional damage earlier in the chapter,
+    // they cannot simply return to 'Control'. They are masking.
+    const hasDamage = finalArc.some(s => ['Shame', 'Loss of Control', 'Destabilization', 'Threat Exposure'].includes(s));
+    if (hasDamage && finalArc[finalArc.length - 1] === 'Control') {
+        finalArc[finalArc.length - 1] = 'Masked Instability';
+    }
     
     const entryState = finalArc[0] || 'Neutral';
     const exitState = finalArc[finalArc.length - 1] || 'Neutral';

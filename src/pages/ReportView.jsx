@@ -3,6 +3,7 @@ import { Button } from '../components/ui/Button';
 import { Download, Printer, Share2, ChevronLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useProject } from '../context/ProjectContext';
+import { analyzeManuscript } from '../lib/devAnalyzer';
 
 const ReportView = () => {
   const navigate = useNavigate();
@@ -24,6 +25,17 @@ const ReportView = () => {
   }
 
   const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  // JIT Re-hydration: If the browser is serving a cached manuscript from before the 40-module refactor,
+  // we dynamically run the analyzer on it right here so the PDF generator has the correct data schema.
+  let activeChapters = chapters;
+  if (chapters && chapters.length > 0 && chapters[0].analysis) {
+     if (chapters[0].analysis.pacing?.actionPct === undefined || chapters[0].analysis.emotional?.arcStage === undefined) {
+         try {
+             activeChapters = analyzeManuscript(chapters, stats?.settings || {});
+         } catch(e) { console.error("JIT re-analysis failed", e); }
+     }
+  }
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', width: '100%' }}>
@@ -54,9 +66,9 @@ const ReportView = () => {
         <SectionHeading number="1" title="Global Health Dashboard" />
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', marginBottom: '32px' }}>
           {[
-            { label: 'Avg Purpose Score', score: Math.round(chapters.reduce((s,c)=>s+(c.analysis?.purpose?.score||0),0)/chapters.length) + '/100' || 'N/A', color: '#7b2c3a' },
-            { label: 'Avg Pacing Score', score: Math.round(chapters.reduce((s,c)=>s+(c.analysis?.pacing?.score||0),0)/chapters.length) + '/100' || 'N/A', color: '#1a1a1f' },
-            { label: 'Avg Romance Score', score: Math.round(chapters.reduce((s,c)=>s+(c.analysis?.romance?.score||0),0)/chapters.length) + '/100' || 'N/A', color: '#a88b5d' },
+            { label: 'Avg Purpose Score', score: activeChapters.length ? Math.round(activeChapters.reduce((s,c)=>s+(c.analysis?.purpose?.score||0),0)/activeChapters.length) + '/100' : 'N/A', color: '#7b2c3a' },
+            { label: 'Avg Pacing Score', score: activeChapters.length ? Math.round(activeChapters.reduce((s,c)=>s+(c.analysis?.pacing?.score||0),0)/activeChapters.length) + '/100' : 'N/A', color: '#1a1a1f' },
+            { label: 'Avg Romance Score', score: activeChapters.length ? Math.round(activeChapters.reduce((s,c)=>s+(c.analysis?.romance?.score||0),0)/activeChapters.length) + '/100' : 'N/A', color: '#a88b5d' },
             { label: 'AI Pattern Density', score: stats?.aiDensityLabel || 'N/A', color: '#1a1a1f' }
           ].map((item, idx) => (
             <div key={idx} style={{ flex: 1, backgroundColor: '#f4f4f6', padding: '24px 16px', borderRadius: '8px', textAlign: 'center', border: item.color === '#a88b5d' ? `2px solid ${item.color}` : 'none' }}>
@@ -77,7 +89,7 @@ const ReportView = () => {
         </div>
 
         <SectionHeading number="3" title="Chapter-by-Chapter Breakdown" />
-        {chapters.map((chapter, index) => {
+        {activeChapters.map((chapter, index) => {
            const a = chapter.analysis;
            if (!a) return null;
 
@@ -107,10 +119,15 @@ const ReportView = () => {
                    <div style={{ backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px' }}>
                      <h5 style={{ fontSize: '1rem', color: '#a88b5d', marginBottom: '12px', borderBottom: '1px solid rgba(168,139,93,0.3)', paddingBottom: '4px' }}>Character & Romance</h5>
                      <p style={{ margin: '4px 0', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><strong>Emotional Arc:</strong> {a.emotional?.start || '?'} → {a.emotional?.end || '?'}</p>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Active Romantic Tension:</strong> {a.romance?.byCharacter ? Object.entries(a.romance.byCharacter).map(([n, d]) => `${n} (${d.tension}/10)`).join(', ') : 'None'}</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>
+                       <strong>Active Romantic Tension:</strong>{' '}
+                       {a.romance?.byCharacter && Object.keys(a.romance.byCharacter).length > 0 
+                          ? Object.entries(a.romance.byCharacter).map(([n, d]) => `${n} (${d.tension}/10)`).join(', ') 
+                          : 'No love interests detected.'}
+                     </p>
                      <ul style={{ paddingLeft: '20px', margin: '8px 0', fontSize: '0.9rem', color: '#333' }}>
-                        {a.emotional?.flags?.map((f, i) => <li key={`ef-${i}`} style={{ marginBottom: '4px' }}>{f.msg}</li>)}
-                        {a.romance?.flags?.map((f, i) => <li key={`rf-${i}`} style={{ marginBottom: '4px' }}>{f.msg}</li>)}
+                        {a.emotional?.flags?.map((f, i) => <li key={`ef-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}
+                        {a.romance?.flags?.map((f, i) => <li key={`rf-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}
                      </ul>
                    </div>
 

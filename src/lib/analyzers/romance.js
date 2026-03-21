@@ -155,7 +155,7 @@ export function scanRomanceTension(chapter, settings = {}) {
         severity: -10,
         message: 'No dominance or control tension detected in sustained interaction.',
         suggestedFix: 'Introduce imbalance or control shift.',
-        text: `Scene ${sceneIdx+1} with ${activeLI}`,
+        text: `Scene ${sceneIdx+1} with ${liNames}`,
         sceneIndex: sceneIdx
       });
     }
@@ -168,7 +168,7 @@ export function scanRomanceTension(chapter, settings = {}) {
         severity: -15,
         message: 'Attraction is not affecting behavior (internal only).',
         suggestedFix: 'Translate desire into action or restraint.',
-        text: `Scene ${sceneIdx+1} with ${activeLI}`,
+        text: `Scene ${sceneIdx+1} with ${liNames}`,
         sceneIndex: sceneIdx
       });
     }

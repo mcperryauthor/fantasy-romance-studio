@@ -62,17 +62,9 @@ export function classifyChapterPurposeDetailed(chapter) {
     cpScore -= 10;
   }
 
-  // 3. Multi-Purpose Overload (High: -15)
-  if (purposes.length >= 4) {
-    flags.push({
-      type: 'Purpose Overload',
-      severity: -15,
-      message: 'Chapter is overloaded and lacks focus (trying to do plot, romance, AND worldbuilding at once).',
-      suggestedFix: 'Split into multiple chapters OR prioritize one purpose.',
-      text: purposes.join(', ')
-    });
-    cpScore -= 15;
-  }
+  // The user explicitly requested that we do NOT punish chapters for covering multiple purposes,
+  // as plot, romance, and worldbuilding should be woven together.
+  // (Multi-Purpose Overload block removed)
 
   // 4. No Change Outcome (Critical: -25)
   // Compare first 10% of chapter sentences to last 10%

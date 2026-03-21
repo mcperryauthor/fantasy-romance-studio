@@ -35,7 +35,9 @@ export function scanPacing(chapter) {
     const emittedRules = new Set();
     const scenes = chapter.scenes || [];
     
-    let totalScore = 100;
+    let totalBonuses = 0;
+    
+    let score = 100;
     let totalActionBlocks = 0;
     let totalIntroBlocks = 0;
     let totalDialogueBlocks = 0;
@@ -166,14 +168,7 @@ export function scanPacing(chapter) {
 
         // 4. Positive Reinforcement: High-Level Prose
         if (totalReactiveBlocks > 2 && !emittedRules.has('Reactive Mastery')) {
-            flags.push({
-                type: 'Reactive Mastery',
-                severity: 15, // Positive reward
-                message: 'Strong emotional grounding. Interaction leverages high-level reactive internality (showing vs telling).',
-                suggestedFix: 'Excellent emotional processing in real-time.',
-                text: 'Detected in Scene ' + (sceneIdx + 1),
-                sceneIndex: sceneIdx
-            });
+            totalBonuses += 15;
             emittedRules.add('Reactive Mastery');
         }
 
@@ -199,10 +194,11 @@ export function scanPacing(chapter) {
     });
 
     flags.forEach(f => {
-        totalScore += f.severity;
+        score += f.severity; // Positive severity adds points, negative takes them away
     });
-
-    const finalScore = Math.max(0, Math.min(100, totalScore));
+    score += totalBonuses;
+    
+    const finalScore = Math.max(0, Math.min(100, score));
     
     const breakdown = {};
     flags.forEach(f => {

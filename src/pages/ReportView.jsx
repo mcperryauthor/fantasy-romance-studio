@@ -54,10 +54,10 @@ const ReportView = () => {
         <SectionHeading number="1" title="Global Health Dashboard" />
         <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px', marginBottom: '32px' }}>
           {[
-            { label: 'Overall Structural', score: stats?.overallScore || 'N/A', color: '#7b2c3a' },
-            { label: 'Prose Quality', score: stats?.metrics?.prose || 'N/A', color: '#1a1a1f' },
-            { label: 'Romance Pacing', score: stats?.metrics?.romance || 'N/A', color: '#a88b5d' },
-            { label: 'Narrative Pacing', score: stats?.metrics?.pacing || 'N/A', color: '#1a1a1f' }
+            { label: 'Avg Purpose Score', score: Math.round(chapters.reduce((s,c)=>s+(c.analysis?.purpose?.score||0),0)/chapters.length) + '/100' || 'N/A', color: '#7b2c3a' },
+            { label: 'Avg Pacing Score', score: Math.round(chapters.reduce((s,c)=>s+(c.analysis?.pacing?.score||0),0)/chapters.length) + '/100' || 'N/A', color: '#1a1a1f' },
+            { label: 'Avg Romance Score', score: Math.round(chapters.reduce((s,c)=>s+(c.analysis?.romance?.score||0),0)/chapters.length) + '/100' || 'N/A', color: '#a88b5d' },
+            { label: 'AI Pattern Density', score: stats?.aiDensityLabel || 'N/A', color: '#1a1a1f' }
           ].map((item, idx) => (
             <div key={idx} style={{ flex: 1, backgroundColor: '#f4f4f6', padding: '24px 16px', borderRadius: '8px', textAlign: 'center', border: item.color === '#a88b5d' ? `2px solid ${item.color}` : 'none' }}>
               <div style={{ fontSize: '2.5rem', fontFamily: 'var(--font-serif)', fontWeight: '700', color: item.color }}>{item.score}</div>
@@ -96,18 +96,18 @@ const ReportView = () => {
                    <div style={{ backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px' }}>
                      <h5 style={{ fontSize: '1rem', color: '#7b2c3a', marginBottom: '12px', borderBottom: '1px solid rgba(123,44,58,0.2)', paddingBottom: '4px' }}>Pacing & Structure</h5>
                      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Flow:</strong> {a.pacing?.dragRisk ? 'High Drag Risk' : 'Balanced'}</p>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Action:</strong> {a.pacing?.action}% | <strong>Dialogue:</strong> {a.pacing?.dialogue}%</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Action:</strong> {a.pacing?.actionPct || 0}% | <strong>Dialogue:</strong> {Math.min(100, Math.round(a.pacing?.dialogueRatio || 0))}% | <strong>Introspect:</strong> {a.pacing?.introspectPct || 0}%</p>
                      <ul style={{ paddingLeft: '20px', margin: '8px 0', fontSize: '0.9rem', color: '#333' }}>
-                        {a.pacing?.flags?.map((f, i) => <li key={`pf-${i}`} style={{ marginBottom: '4px' }}>{f.msg}</li>)}
-                        {a.purpose?.flags?.map((f, i) => <li key={`cf-${i}`} style={{ marginBottom: '4px' }}>{f.msg}</li>)}
+                        {a.pacing?.flags?.map((f, i) => <li key={`pf-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}
+                        {a.purpose?.flags?.map((f, i) => <li key={`cf-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}
                      </ul>
                    </div>
 
                    {/* Emotion & Romance */}
                    <div style={{ backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px' }}>
                      <h5 style={{ fontSize: '1rem', color: '#a88b5d', marginBottom: '12px', borderBottom: '1px solid rgba(168,139,93,0.3)', paddingBottom: '4px' }}>Character & Romance</h5>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Emotional Arc:</strong> {a.emotional?.start || '?'} → {a.emotional?.end || '?'}</p>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Romance Stage:</strong> {a.romance?.arcStage || 'N/A'} (Tension: {a.romance?.tensionLevel || 0}/10)</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><strong>Emotional Arc:</strong> {a.emotional?.start || '?'} → {a.emotional?.end || '?'}</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Active Romantic Tension:</strong> {a.romance?.byCharacter ? Object.entries(a.romance.byCharacter).map(([n, d]) => `${n} (${d.tension}/10)`).join(', ') : 'None'}</p>
                      <ul style={{ paddingLeft: '20px', margin: '8px 0', fontSize: '0.9rem', color: '#333' }}>
                         {a.emotional?.flags?.map((f, i) => <li key={`ef-${i}`} style={{ marginBottom: '4px' }}>{f.msg}</li>)}
                         {a.romance?.flags?.map((f, i) => <li key={`rf-${i}`} style={{ marginBottom: '4px' }}>{f.msg}</li>)}

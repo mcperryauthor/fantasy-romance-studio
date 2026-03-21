@@ -9,6 +9,7 @@ import { scanPacing } from './analyzers/pacing.js';
 import { scanRomanceTension } from './analyzers/romance.js';
 import { classifyChapterPurposeDetailed } from './analyzers/purpose.js';
 import { scanEmotionalArc } from './analyzers/emotional.js';
+import { scanExposition } from './analyzers/exposition.js';
 // (Note: Optional cross-chapter logic could still be maintained, keeping for compatibility)
 import { scanManuscriptAIPatterns } from './aiPatternScanner.js';
 
@@ -407,6 +408,7 @@ export function analyzeManuscript(chapters, settings = {}) {
       prose:      scanProsePatterns(chapter, settings.sensitivity ?? 3),
       outOfPlace: detectOutOfPlaceProse(chapter),
       pacing:     analyzePacing(chapter),
+      exposition: scanExposition(chapter),
       aiPatterns: scanAIPatternsDetailed(chapter),
     },
   }))

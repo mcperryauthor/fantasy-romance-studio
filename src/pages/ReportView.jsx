@@ -134,6 +134,25 @@ const ReportView = () => {
 
                 </div>
 
+                {/* Exposition & Lore Delivery */}
+                <div style={{ marginTop: '24px', backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px', borderLeft: '4px solid #555' }}>
+                   <h5 style={{ fontSize: '1rem', color: '#111', marginBottom: '12px', borderBottom: '1px solid #ccc', paddingBottom: '4px' }}>Exposition & Lore Delivery</h5>
+                   <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: '16px' }}>
+                       <div>
+                           <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Density:</strong> {a.exposition?.density || 'Unknown'}</p>
+                           <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Distribution:</strong> Integrated: {a.exposition?.integratedCount || 0} | Passive: {a.exposition?.passiveCount || 0} | Info Dumps: {a.exposition?.infoDumpCount || 0}</p>
+                           <ul style={{ paddingLeft: '20px', margin: '8px 0', fontSize: '0.9rem', color: '#333' }}>
+                              {a.exposition?.flags?.map((f, i) => <li key={`exf-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}
+                           </ul>
+                       </div>
+                       <div>
+                           <p style={{ margin: '4px 0', fontSize: '0.9em', fontWeight: 'bold' }}>Romance Impact</p>
+                           <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Tension Maintained: {a.exposition?.romanceImpact?.tensionMaintained ? 'Yes' : 'No'}</p>
+                           <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>Explanation Replaced Emotion: {a.exposition?.romanceImpact?.explanationReplacingEmotion ? 'Yes' : 'No'}</p>
+                       </div>
+                   </div>
+                </div>
+
                 {/* Conspiracy & Lore */}
                 {a.conspiracy && a.conspiracy.flags?.length > 0 && (
                   <div style={{ marginTop: '24px' }}>

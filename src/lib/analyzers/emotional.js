@@ -127,6 +127,8 @@ export function scanEmotionalArc(chapter) {
         flags: flags,
         breakdown: { 'Behavior Changes': behaviorHits },
         arcStage,
+        start: entryState,
+        end: exitState,
         entryEmotion: entryState,
         exitEmotion: exitState,
         behaviorChange: hasBehaviorChange ? 'YES' : 'NO'

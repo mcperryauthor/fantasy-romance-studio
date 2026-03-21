@@ -3,16 +3,16 @@
  * Extracts State, Pressure, and Behavior changes globally.
  */
 
-// STATE Lexicons
-const STATE_CONTROL = ['control', 'fine', 'mask', 'numb', 'stoic', 'calm', 'steady', 'safe', 'hide', 'ignore'];
+// STATE Lexicons (Redefined by PRIORITY: Pressure, Loss of Power, Shame, Destabilization)
+const STATE_CONTROL = ['control', 'fine', 'mask', 'numb', 'stoic', 'hold back', 'swallow', 'tight', 'ignore', 'pressure', 'composure', 'steady', 'focus', 'shallow'];
 const STATE_SAFETY = ['safe', 'warm', 'comfort', 'peace', 'belong', 'protected', 'relief'];
-const STATE_STABILITY = ['steady', 'grounded', 'sure', 'certain', 'expected', 'routine', 'normal'];
+const STATE_STABILITY = ['grounded', 'sure', 'certain', 'expected', 'routine', 'normal'];
 const STATE_DESIRE = ['want', 'need', 'crave', 'burn', 'ache', 'desire', 'hunger', 'drawn', 'pull'];
 
-const STATE_LOSS_CONTROL = ['shame', 'humiliation', 'panic', 'worthless', 'destabilized', 'overpowered', 'trapped', 'loss', 'fail'];
-const STATE_THREAT = ['threatened', 'fear', 'terrified', 'danger', 'shatter', 'ruin', 'blood', 'pain', 'cruel', 'harsh'];
-const STATE_DESTABILIZATION = ['confused', 'torn', 'uncertain', 'wild', 'restless', 'heavy', 'edge', 'shock', 'sudden'];
-const STATE_RESISTANCE = ['don\'t', 'stop', 'back', 'no', 'fight', 'refuse', 'resist', 'defiance', 'anger'];
+const STATE_SHAME = ['shame', 'humiliation', 'worthless', 'fool', 'stupid', 'abomination', 'mistake', 'pathetic', 'laugh', 'flush', 'heat', 'embarrass'];
+const STATE_LOSS_CONTROL = ['panic', 'overpowered', 'trapped', 'loss', 'fail', 'forced', 'submit', 'yield', 'cornered'];
+const STATE_THREAT = ['threatened', 'fear', 'terrified', 'danger', 'shatter', 'ruin', 'blood', 'pain', 'cruel', 'harsh', 'vulnerable', 'exposed', 'monster'];
+const STATE_DESTABILIZATION = ['confused', 'shaken', 'torn', 'uncertain', 'wild', 'restless', 'heavy', 'edge', 'shock', 'destabilized', 'cracked', 'shatter', 'tremble'];
 
 // BEHAVIORAL SHIFT Lexicons (Physical/Internal actions)
 const BEHAVIOR_MOVEMENT = ['freeze', 'froze', 'run', 'ran', 'retreat', 'step back', 'submit', 'yield', 'flinch', 'shrank', 'turn away'];
@@ -29,10 +29,10 @@ function extractPrimaryState(text) {
         'Safety': countLexicon(text, STATE_SAFETY),
         'Stability': countLexicon(text, STATE_STABILITY),
         'Desire': countLexicon(text, STATE_DESIRE),
+        'Shame': countLexicon(text, STATE_SHAME),
         'Loss of Control': countLexicon(text, STATE_LOSS_CONTROL),
-        'Threat': countLexicon(text, STATE_THREAT),
-        'Destabilization': countLexicon(text, STATE_DESTABILIZATION),
-        'Resistance': countLexicon(text, STATE_RESISTANCE)
+        'Threat Exposure': countLexicon(text, STATE_THREAT),
+        'Destabilization': countLexicon(text, STATE_DESTABILIZATION)
     };
 
     let maxState = 'Neutral';
@@ -47,8 +47,10 @@ function extractPrimaryState(text) {
     
     // Fallbacks if tied at 0
     if (maxCount === 0) {
-        if (text.includes('fear') || text.includes('panic')) return 'Threat';
-        if (text.includes('fine') || text.includes('ignore')) return 'Control';
+        if (text.includes('fear') || text.includes('panic') || text.includes('monster')) return 'Threat Exposure';
+        if (text.includes('fine') || text.includes('ignore') || text.includes('swallow')) return 'Control';
+        if (text.includes('worthless') || text.includes('abomination')) return 'Shame';
+        if (text.includes('shatter') || text.includes('shake')) return 'Destabilization';
     }
     
     return maxState;
@@ -61,13 +63,20 @@ export function scanEmotionalArc(chapter) {
     const paragraphs = textLower.split(/\n\s*\n|\n/).filter(p => p.trim());
     const sentences = chapter.sentences || text.match(/[^.!?]+[.!?]+/g) || [];
     
-    // ENTRY STATE = First 2-3 paragraphs (or first ~8 sentences)
-    const openingText = paragraphs.slice(0, Math.max(3, Math.floor(paragraphs.length * 0.15))).join(' ');
-    // EXIT STATE = Condition after final interaction
-    const closingText = paragraphs.slice(-Math.max(3, Math.floor(paragraphs.length * 0.15))).join(' ');
+    // Evaluate 4 points: 0%, 33%, 66%, 100%
+    const pLen = paragraphs.length;
+    let arcPoints = [];
+    if (pLen > 8) {
+        arcPoints.push(extractPrimaryState(paragraphs.slice(0, Math.floor(pLen * 0.25)).join(' ')));
+        arcPoints.push(extractPrimaryState(paragraphs.slice(Math.floor(pLen * 0.25), Math.floor(pLen * 0.5)).join(' ')));
+        arcPoints.push(extractPrimaryState(paragraphs.slice(Math.floor(pLen * 0.5), Math.floor(pLen * 0.75)).join(' ')));
+        arcPoints.push(extractPrimaryState(paragraphs.slice(Math.floor(pLen * 0.75)).join(' ')));
+    } else {
+        arcPoints = [entryState, exitState];
+    }
     
-    const entryState = extractPrimaryState(openingText);
-    const exitState = extractPrimaryState(closingText);
+    // Clean up adjacent duplicates
+    const finalArc = arcPoints.filter((s, i) => i === 0 || s !== arcPoints[i-1]);
     
     // Detect Behavior Change
     const behaviorHits = 
@@ -80,19 +89,13 @@ export function scanEmotionalArc(chapter) {
     const flags = [];
     let arcStage = 'Flatline';
     
-    // State-Based Arc Classification Fix
-    if ((entryState === 'Control' && exitState === 'Loss of Control') ||
-        (entryState === 'Control' && exitState === 'Destabilization')) {
-        arcStage = 'Negative Arc (Control \u2192 Destabilization)';
-    } else if (entryState === 'Safety' && (exitState === 'Threat' || exitState === 'Destabilization')) {
-        arcStage = 'Negative Arc (Safety \u2192 Threat)';
-    } else if (entryState === 'Stability' && exitState === 'Destabilization') {
-        arcStage = 'Negative Arc (Stability \u2192 Destabilization)';
-    } else if ((entryState === 'Desire' && exitState === 'Resistance') || 
-               (entryState === 'Resistance' && (exitState === 'Desire' || exitState === 'Loss of Control'))) {
-        arcStage = 'Push-Pull Arc (Desire \u2194 Resistance)';
-    } else if (entryState === exitState) {
-        arcStage = `Static Arc (${entryState})`;
+    const isNegative = finalArc.some(s => s === 'Loss of Control' || s === 'Destabilization' || s === 'Threat Exposure' || s === 'Shame');
+    const opensPositive = (entryState === 'Control' || entryState === 'Safety' || entryState === 'Stability');
+    
+    if (opensPositive && isNegative) {
+        arcStage = 'Negative';
+    } else if (finalArc.length === 1 || entryState === exitState) {
+        arcStage = `Static (${entryState})`;
         flags.push({
             type: 'Stagnant Emotional State',
             severity: -15,
@@ -101,7 +104,7 @@ export function scanEmotionalArc(chapter) {
             text: `Entry: ${entryState} -> Exit: ${exitState}`
         });
     } else {
-        arcStage = `${entryState} \u2192 ${exitState}`;
+        arcStage = 'Transitional';
     }
     
     // Flag missing behavior changes
@@ -129,6 +132,7 @@ export function scanEmotionalArc(chapter) {
         arcStage,
         start: entryState,
         end: exitState,
+        formattedArc: finalArc.join(' \u2192 '),
         entryEmotion: entryState,
         exitEmotion: exitState,
         behaviorChange: hasBehaviorChange ? 'YES' : 'NO'

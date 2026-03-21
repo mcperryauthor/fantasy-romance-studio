@@ -117,11 +117,12 @@ const ReportView = () => {
                    </div>
 
                    {/* Emotion & Romance */}
-                   <div style={{ backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px' }}>
-                     <h5 style={{ fontSize: '1rem', color: '#a88b5d', marginBottom: '12px', borderBottom: '1px solid rgba(168,139,93,0.3)', paddingBottom: '4px' }}>Character & Romance</h5>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><strong>Emotional Arc:</strong> {a.emotional?.start || '?'} → {a.emotional?.end || '?'}</p>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Romance Flow:</strong> {a.pacing?.interactionReactionResponse ? "Cyclic (Action → Reaction)" : "Stalled"} | <strong>Push-Pull:</strong> {a.pacing?.pushPullPresent ? "Yes" : "No"}</p>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>
+                     <div style={{ backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px' }}>
+                       <h5 style={{ fontSize: '1rem', color: '#a88b5d', marginBottom: '12px', borderBottom: '1px solid rgba(168,139,93,0.3)', paddingBottom: '4px' }}>Character & Romance</h5>
+                       <p style={{ margin: '4px 0', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><strong>Emotional Arc:</strong> {a.emotional?.formattedArc || `${a.emotional?.start || '?'} → ${a.emotional?.end || '?'}`}</p>
+                       <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Arc Type:</strong> {a.emotional?.arcStage || 'Transitional'}</p>
+                       <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Romance Flow:</strong> {a.pacing?.interactionReactionResponse ? "Escalating Push-Pull (Action → Reaction → Escalation)" : "Stalled"}</p>
+                       <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>
                        <strong>Active Romantic Tension:</strong>{' '}
                        {a.romance?.byCharacter && Object.keys(a.romance.byCharacter).length > 0 
                           ? Object.entries(a.romance.byCharacter).map(([n, d]) => `${n} (${d.tension}/10)`).join(', ') 

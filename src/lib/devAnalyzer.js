@@ -453,8 +453,10 @@ export function analyzeManuscript(chapters, settings = {}) {
         analysis.pacing.flags.push({type: 'Scene Stall', severity: -15, message: 'No emotional shift, no new information, and no behavior change detected. Subsurface drag.'});
     } else if (expositionLoad === 'HIGH' || flowAnalysis === 'Repetitive') {
         pacingType = 'Slow';
-    } else if (emotionalChangeRate === 'HIGH' || analysis.pacing.actionPct > 40) {
-        pacingType = 'Fast';
+    } else if (emotionalChangeRate === 'HIGH') {
+        pacingType = 'Fast (Emotion-Driven Escalation)';
+    } else if (analysis.pacing.actionPct > 40) {
+        pacingType = 'Fast (Action Speed)';
     }
     
     // PACING OVERRIDE RULE

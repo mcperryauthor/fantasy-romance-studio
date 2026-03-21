@@ -44,7 +44,7 @@ export function scanPacing(chapter) {
         const text = scene.text || '';
         if (!text.trim()) return;
         
-        const paragraphs = text.split(/\\n\\s*\\n|\\n/).filter(p => p.trim());
+        const paragraphs = text.split(/\n\s*\n|\n/).filter(p => p.trim());
         if (paragraphs.length === 0) return;
 
         totalDialogueBlocks += paragraphs.filter(p => /["“”]/.test(p)).length;

@@ -1,190 +1,167 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { Badge } from '../components/ui/Badge';
-import { Download } from 'lucide-react';
-
-/* Import all 17 modules */
-import { ModuleHighLevel, ModuleStrengths, ModuleTopProblems, ModulePriorityFixes } from '../components/modules/ModuleList1';
-import { ModuleProseFlags, ModuleAITells, ModuleVoiceConsistency } from '../components/modules/ModuleList2';
-import { ModuleRomanceArc, ModuleRomanceTension, ModuleRepetitionScan } from '../components/modules/ModuleList3';
-import { ModulePacingBreakdown, ModuleEmotionalMovement, ModuleArcDensity, ModuleChapterPurpose } from '../components/modules/ModuleList4';
-import { ModuleMarketability, ModuleWorldLoreMagic, ModuleFinalSummary } from '../components/modules/ModuleList5';
-
-/* Import 13 Beta Modules */
-import { ModuleBetaLiveReaction, ModuleBetaHook, ModuleBetaImmersion, ModuleBetaCharacterConnection, ModuleBetaRomanceExperience } from '../components/modules/ModuleBetaList1';
-import { ModuleBetaPacing, ModuleBetaConfusion, ModuleBetaObsession, ModuleBetaSkim, ModuleBetaFavorite } from '../components/modules/ModuleBetaList2';
-import { ModuleBetaLeastEffective, ModuleBetaEndingReaction, ModuleBetaOverallImpression } from '../components/modules/ModuleBetaList3';
-
-/* Import 9 Beta Variants */
-import { ModuleVariantDarkRomance, ModuleVariantWorldImmersion, ModuleVariantSlowBurn, ModuleVariantBookTok } from '../components/modules/ModuleVariantList1';
-import { ModuleVariantCharacterDriven, ModuleVariantPacingSensitive, ModuleVariantProseFocused, ModuleVariantBalance } from '../components/modules/ModuleVariantList2';
-import { ModuleVariantComparison } from '../components/modules/ModuleVariantComparison';
+import { useProject } from '../context/ProjectContext';
+import ManuscriptDashboard from '../components/ManuscriptDashboard';
+import HighlightedManuscript from '../components/HighlightedManuscript';
+import { analysisModules } from '../data/modulesConfig';
+import { Edit3 } from 'lucide-react';
 
 const ReviewWorkspace = () => {
   const navigate = useNavigate();
-  const [activeModule, setActiveModule] = useState('1. High-Level Chapter Diagnosis');
+  const { manuscriptTitle, chapters, stats, rawText, clearProject } = useProject();
+  
+  const [activeChapterIndex, setActiveChapterIndex] = useState(null); // null = Dashboard
+  const [activeModule, setActiveModule] = useState('purpose');
+  const [activeFlag, setActiveFlag] = useState(null);
 
-  const modules = [
-    { id: '1. High-Level Chapter Diagnosis', component: <ModuleHighLevel /> },
-    { id: '2. Strengths', component: <ModuleStrengths /> },
-    { id: '3. Top Problems', component: <ModuleTopProblems /> },
-    { id: '4. Priority Fixes', component: <ModulePriorityFixes /> },
-    { id: '5. Prose Flags', component: <ModuleProseFlags /> },
-    { id: '6. AI-Like Writing Tells', component: <ModuleAITells /> },
-    { id: '7. Voice Consistency', component: <ModuleVoiceConsistency /> },
-    { id: '8. Romance Arc', component: <ModuleRomanceArc /> },
-    { id: '9. Romance Tension', component: <ModuleRomanceTension /> },
-    { id: '10. Repetition Scan', component: <ModuleRepetitionScan /> },
-    { id: '11. Pacing Breakdown', component: <ModulePacingBreakdown /> },
-    { id: '12. Emotional Movement', component: <ModuleEmotionalMovement /> },
-    { id: '13. Arc Density', component: <ModuleArcDensity /> },
-    { id: '14. Chapter Purpose', component: <ModuleChapterPurpose /> },
-    { id: '15. Marketability / Hook', component: <ModuleMarketability />, type: 'editorial' },
-    { id: '16. World / Lore / Magic', component: <ModuleWorldLoreMagic />, type: 'editorial' },
-    { id: '17. Final Summary', component: <ModuleFinalSummary />, type: 'editorial' },
-    { id: 'B1. Live Reaction Tracker', component: <ModuleBetaLiveReaction />, type: 'beta' },
-    { id: 'B2. Hook & Opening Reaction', component: <ModuleBetaHook />, type: 'beta' },
-    { id: 'B3. Immersion Check', component: <ModuleBetaImmersion />, type: 'beta' },
-    { id: 'B4. Character Connection', component: <ModuleBetaCharacterConnection />, type: 'beta' },
-    { id: 'B5. Romance Experience', component: <ModuleBetaRomanceExperience />, type: 'beta' },
-    { id: 'B6. Pacing Experience', component: <ModuleBetaPacing />, type: 'beta' },
-    { id: 'B7. Confusion & Clarity', component: <ModuleBetaConfusion />, type: 'beta' },
-    { id: 'B8. Obsession Check', component: <ModuleBetaObsession />, type: 'beta' },
-    { id: 'B9. Skim Detection', component: <ModuleBetaSkim />, type: 'beta' },
-    { id: 'B10. Favorite Moments', component: <ModuleBetaFavorite />, type: 'beta' },
-    { id: 'B11. Least Effective Moments', component: <ModuleBetaLeastEffective />, type: 'beta' },
-    { id: 'B12. Ending Reaction', component: <ModuleBetaEndingReaction />, type: 'beta' },
-    { id: 'B13. Overall Reader Impression', component: <ModuleBetaOverallImpression />, type: 'beta' },
-    { id: 'V1. Dark Romance Reader', component: <ModuleVariantDarkRomance />, type: 'variant' },
-    { id: 'V2. World Immersion Reader', component: <ModuleVariantWorldImmersion />, type: 'variant' },
-    { id: 'V3. Slow Burn Reader', component: <ModuleVariantSlowBurn />, type: 'variant' },
-    { id: 'V4. BookTok Viral Reader', component: <ModuleVariantBookTok />, type: 'variant' },
-    { id: 'V5. Character-Driven Reader', component: <ModuleVariantCharacterDriven />, type: 'variant' },
-    { id: 'V6. Pacing-Sensitive Reader', component: <ModuleVariantPacingSensitive />, type: 'variant' },
-    { id: 'V7. Prose-Focused Reader', component: <ModuleVariantProseFocused />, type: 'variant' },
-    { id: 'V8. Balance Reader', component: <ModuleVariantBalance />, type: 'variant' },
-    { id: 'V9. Variant Comparison', component: <ModuleVariantComparison />, type: 'variant' },
-  ];
+  const handleNewProject = () => {
+    if (window.confirm("Are you sure you want to start a new project? This will clear your current manuscript data.")) {
+      clearProject();
+      navigate('/');
+    }
+  };
 
-  const activeComponent = modules.find(m => m.id === activeModule)?.component;
+  if (!chapters || chapters.length === 0) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', backgroundColor: '#0a0909', color: '#fff' }}>
+        <h2 style={{ fontFamily: 'var(--font-serif)', color: 'var(--color-gold-muted)', marginBottom: '16px' }}>No Manuscript Loaded</h2>
+        <Button variant="primary" onClick={() => navigate('/')}>Return to Upload</Button>
+      </div>
+    );
+  }
+
+  const activeChapter = activeChapterIndex !== null ? chapters.find(c => c.index === activeChapterIndex) : null;
+  const ActiveComponent = analysisModules.find(m => m.id === activeModule)?.component || analysisModules[0].component;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 120px)', marginTop: '-var(--spacing-lg)' }}>
-      {/* Sticky Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0', borderBottom: '1px solid var(--color-plum-dark)', marginBottom: 'var(--spacing-md)' }}>
-        <div>
-          <h1 style={{ fontSize: '1.5rem', marginBottom: '4px' }}>Chapter 12: The Blood Tithe</h1>
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center', fontSize: '0.875rem' }}>
-            <span className="text-muted">Crown of Shadow and Glass</span>
-            <span className="text-muted">•</span>
-            <span className="text-gold" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-               Style Profile: Author's Core Style (Dark Luxe)
-            </span>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', backgroundColor: '#0a0909', color: 'var(--color-text-main)', fontFamily: 'var(--font-sans)', width: '100%' }}>
+      
+      {/* 1. TOP HEADER */}
+      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 20px', backgroundColor: 'rgba(10, 9, 9, 0.95)', borderBottom: '1px solid var(--color-plum-dark)', height: '52px', flexShrink: 0, zIndex: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: '700', color: 'var(--color-gold-muted)' }}>
+            The Editorial Grimoire
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', marginLeft: '16px' }}>
+            <span style={{ fontSize: '0.8rem', color: '#fff', fontWeight: 500 }}>{manuscriptTitle}</span>
+            <span style={{ fontSize: '0.65rem', color: 'var(--color-text-muted)' }}>{stats?.totalWords?.toLocaleString() || 0} words · {chapters.length} chapters</span>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
-          <Button variant="ghost">Save Workspace</Button>
-          <Button variant="primary" onClick={() => navigate('/report/1')} style={{ gap: '8px' }}><Download size={16} /> Generate Report</Button>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <span style={{ fontSize: '0.7rem', color: 'var(--color-burgundy)', opacity: 0.8, marginRight: '8px' }}>✓ Autosaved local</span>
+          <Button variant="ghost" onClick={() => navigate('/report/1')} style={{ fontSize: '0.8rem', padding: '6px 12px' }}>↓ Export Report</Button>
         </div>
-      </div>
+      </header>
 
-      {/* 3-Panel Workspace */}
-      <div style={{ display: 'flex', gap: 'var(--spacing-lg)', flex: 1, minHeight: 0 }}>
+      {/* 2. BODY LAYOUT */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         
-        {/* Left Nav */}
-        <div style={{ width: '280px', display: 'flex', flexDirection: 'column', gap: '4px', overflowY: 'auto', paddingRight: '8px' }}>
+        {/* LEFT SIDEBAR (Chapters) */}
+        <aside style={{ width: '240px', backgroundColor: 'var(--color-charcoal)', borderRight: '1px solid var(--color-plum-dark)', display: 'flex', flexDirection: 'column', flexShrink: 0, overflowY: 'auto' }}>
           
-          <h3 className="text-muted" style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', marginTop: '8px' }}>Editorial Review</h3>
-          {modules.filter(m => m.type === 'editorial').map(mod => (
-            <button
-              key={mod.id}
-              onClick={() => setActiveModule(mod.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px',
-                backgroundColor: activeModule === mod.id ? 'var(--color-charcoal)' : 'transparent',
-                border: activeModule === mod.id ? '1px solid var(--color-burgundy)' : '1px solid transparent',
-                borderRadius: '8px', color: activeModule === mod.id ? '#fff' : 'var(--color-text-muted)',
-                textAlign: 'left', fontWeight: activeModule === mod.id ? '600' : '400',
-                fontSize: '0.9rem', transition: 'all 0.2s', width: '100%'
-              }}
+          <div style={{ padding: '16px 0 8px' }}>
+            <div style={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', padding: '0 16px', marginBottom: '8px' }}>Overview</div>
+            <button 
+              onClick={() => setActiveChapterIndex(null)} 
+              style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 16px', background: activeChapterIndex === null ? 'rgba(168, 139, 93, 0.1)' : 'none', border: 'none', borderLeft: `2px solid ${activeChapterIndex === null ? 'var(--color-gold-muted)' : 'transparent'}`, color: activeChapterIndex === null ? '#fff' : 'var(--color-text-muted)', fontSize: '0.82rem', cursor: 'pointer', textAlign: 'left' }}
             >
-              {mod.id.split('. ')[1]}
+              <span style={{ color: 'var(--color-gold-muted)' }}>◈</span> Manuscript Dashboard
             </button>
-          ))}
+          </div>
 
-          <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', marginTop: '24px', color: '#ffb8b8' }}>Beta Simulation</h3>
-          {modules.filter(m => m.type === 'beta').map(mod => (
-            <button
-              key={mod.id}
-              onClick={() => setActiveModule(mod.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px',
-                backgroundColor: activeModule === mod.id ? 'rgba(255, 107, 129, 0.1)' : 'transparent',
-                border: activeModule === mod.id ? '1px solid #ff6b81' : '1px solid transparent',
-                borderRadius: '8px', color: activeModule === mod.id ? '#fff' : 'var(--color-text-muted)',
-                textAlign: 'left', fontWeight: activeModule === mod.id ? '600' : '400',
-                fontSize: '0.9rem', transition: 'all 0.2s', width: '100%'
-              }}
-            >
-              {mod.id.split('. ')[1]}
-            </button>
-          ))}
-
-          <h3 style={{ fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', marginTop: '24px', color: '#a88b5d' }}>Variant Scenarios</h3>
-          {modules.filter(m => m.type === 'variant').map(mod => (
-            <button
-              key={mod.id}
-              onClick={() => setActiveModule(mod.id)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px',
-                backgroundColor: activeModule === mod.id ? 'rgba(168, 139, 93, 0.1)' : 'transparent',
-                border: activeModule === mod.id ? '1px solid #a88b5d' : '1px solid transparent',
-                borderRadius: '8px', color: activeModule === mod.id ? '#fff' : 'var(--color-text-muted)',
-                textAlign: 'left', fontWeight: activeModule === mod.id ? '600' : '400',
-                fontSize: '0.9rem', transition: 'all 0.2s', width: '100%'
-              }}
-            >
-              {mod.id.split('. ')[1]}
-            </button>
-          ))}
-        </div>
-
-        {/* Center Panel (Active Module) */}
-        <div style={{ flex: 1, overflowY: 'auto', paddingRight: '16px' }}>
-          {activeComponent}
-        </div>
-
-        {/* Right Summary Panel */}
-        <div style={{ width: '280px', display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)', overflowY: 'auto' }}>
-          <Card>
-            <h3 style={{ fontSize: '1.1rem', marginBottom: '16px' }}>Chapter Scorecard</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.875rem' }}>Global Health</span>
-                <span style={{ fontFamily: 'var(--font-serif)', fontWeight: '600', color: '#fff' }}>--/10</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.875rem' }}>Prose & Voice</span>
-                <span style={{ fontFamily: 'var(--font-serif)', fontWeight: '600', color: '#fff' }}>--/10</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.875rem', color: 'var(--color-gold-muted)' }}>Romance Tension</span>
-                <span style={{ fontFamily: 'var(--font-serif)', fontWeight: '600', color: 'var(--color-gold-muted)' }}>7.5</span>
-              </div>
-            </div>
+          <div style={{ padding: '16px 0' }}>
+            <div style={{ fontSize: '0.62rem', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-text-muted)', padding: '0 16px', marginBottom: '8px' }}>Chapters</div>
             
-            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid var(--color-plum-dark)' }}>
-              <h4 className="text-muted" style={{ fontSize: '0.875rem', marginBottom: '12px' }}>Workspace Activity</h4>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                <Badge variant="gray">17 Modules</Badge>
-                <Badge variant="red">3 High Priority</Badge>
-              </div>
-            </div>
-          </Card>
-        </div>
+            {chapters.map(ch => {
+              const isActive = activeChapterIndex === ch.index;
+              const povCharacters = Object.keys(stats?.povDist || {});
+              const getColor = (idx) => ['#9D6FA8', '#c24f4f', '#4f7ec2', '#4cA87a', '#c9874c', '#BFA05A', '#A85A8B'][idx % 7];
+              const povIndex = povCharacters.indexOf(ch.pov);
+              const povColor = povIndex >= 0 ? getColor(povIndex) : 'var(--color-gold-muted)';
+              
+              return (
+                <button 
+                  key={ch.index}
+                  onClick={() => setActiveChapterIndex(ch.index)}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%', padding: '8px 16px', background: isActive ? 'var(--color-plum-glow)' : 'none', border: 'none', borderLeft: `2px solid ${isActive ? 'var(--color-burgundy)' : 'transparent'}`, color: isActive ? '#fff' : 'var(--color-text-muted)', fontSize: '0.82rem', cursor: 'pointer', textAlign: 'left' }}
+                >
+                  <span title={`POV: ${ch.pov || 'Unclear'}`} style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: povColor, flexShrink: 0 }} />
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ch.title}</span>
+                  {ch.analysis?.prose?.length > 0 && <span style={{ fontSize: '0.65rem', color: 'var(--color-burgundy)' }}>{ch.analysis.prose.length}</span>}
+                </button>
+              );
+            })}
+          </div>
 
+          <div style={{ marginTop: 'auto', padding: '24px 16px', borderTop: '1px solid var(--color-plum-dark)' }}>
+            <Button 
+              variant="secondary" 
+              onClick={handleNewProject}
+              style={{ width: '100%', fontSize: '0.8rem', padding: '8px', color: 'var(--color-burgundy)', borderColor: 'rgba(123,44,58,0.3)', backgroundColor: 'transparent' }}
+            >
+              ⟲ Start New Project
+            </Button>
+          </div>
+        </aside>
+
+        {/* 3. MAIN AREA & SIDEBAR */}
+        {activeChapterIndex === null ? (
+          <main style={{ flex: 1, overflowY: 'auto', backgroundColor: '#0a0909', boxShadow: 'inset 0 0 100px rgba(123, 44, 58, 0.03)' }}>
+            <ManuscriptDashboard chapters={chapters} stats={stats} />
+          </main>
+        ) : (
+          <>
+            {/* CENTER HIGHLIGHTED READER VIEW */}
+            <main style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#0f0e0e', borderRight: '1px solid var(--color-plum-dark)', overflowY: 'hidden' }}>
+               <div style={{ padding: '16px 32px', borderBottom: '1px solid var(--color-plum-dark)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', backgroundColor: 'var(--color-charcoal)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {activeChapter.pov && (
+                      <span style={{ padding: '4px 12px', borderRadius: '100px', fontSize: '0.7rem', fontWeight: 600, backgroundColor: 'rgba(168, 139, 93, 0.15)', color: 'var(--color-gold-muted)', border: '1px solid rgba(168, 139, 93, 0.3)' }}>{activeChapter.pov} POV</span>
+                     )}
+                    <h1 style={{ fontFamily: 'var(--font-serif)', m: 0, fontSize: '1.25rem', color: '#fff' }}>{activeChapter.title}</h1>
+                  </div>
+                  <div style={{ display: 'flex', gap: '16px', fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                    <span>{activeChapter.wordCount?.toLocaleString()} words</span>
+                  </div>
+               </div>
+               <div style={{ flex: 1, overflowY: 'auto' }}>
+                  <HighlightedManuscript chapter={activeChapter} activeFlag={activeFlag} />
+               </div>
+            </main>
+
+            {/* RIGHT SIDEBAR (TECHNICAL MODULES) */}
+            <aside style={{ width: '400px', display: 'flex', flexDirection: 'column', backgroundColor: '#0a0909', flexShrink: 0 }}>
+               {/* Horizontal Tabs */}
+               <nav style={{ padding: '0 16px', borderBottom: '1px solid var(--color-plum-dark)', display: 'flex', gap: '16px', overflowX: 'auto', flexShrink: 0, backgroundColor: 'var(--color-charcoal)' }}>
+                 {analysisModules.map(mod => (
+                    <button
+                       key={mod.id}
+                       onClick={() => { setActiveModule(mod.id); setActiveFlag(null); }}
+                       style={{ background: 'none', border: 'none', borderBottom: activeModule === mod.id ? '2px solid var(--color-gold-muted)' : '2px solid transparent', color: activeModule === mod.id ? '#fff' : 'var(--color-text-dim)', fontSize: '0.8rem', fontWeight: 500, padding: '12px 4px', cursor: 'pointer', whiteSpace: 'nowrap', transition: 'all 0.2s', marginBottom: '-1px' }}
+                    >
+                       {mod.title}
+                    </button>
+                 ))}
+               </nav>
+
+               <div style={{ flex: 1, overflowY: 'auto', padding: '24px 16px' }}>
+                  <ActiveComponent chapter={activeChapter} onSelectFlag={setActiveFlag} activeFlag={activeFlag} />
+               </div>
+
+               {/* Note Pad */}
+               <div style={{ flexShrink: 0, borderTop: '1px solid var(--color-plum-dark)', backgroundColor: 'var(--color-charcoal)', height: '160px', padding: '16px 20px', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-muted)', fontSize: '0.75rem', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
+                     <Edit3 size={14} /> Chapter Notes
+                  </div>
+                  <textarea 
+                     placeholder="Jot down quick thoughts... 'Increase tension in Scene 2', 'Add more physical description of the ruin'."
+                     style={{ flex: 1, backgroundColor: 'transparent', border: 'none', color: '#fff', fontSize: '0.9rem', fontFamily: 'var(--font-sans)', resize: 'none', outline: 'none', lineHeight: 1.5 }}
+                  />
+               </div>
+            </aside>
+          </>
+        )}
       </div>
     </div>
   );

@@ -112,13 +112,7 @@ export const ModulePacing = ({ chapter, onSelectFlag, activeFlag }) => {
         )}
       </div>
 
-      <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px dashed var(--color-plum-dark)' }}>
-         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Advanced Features (Disabled in Demo context)</div>
-         <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-            <span style={{ fontSize: '0.8rem', padding: '4px 8px', backgroundColor: 'var(--color-charcoal-dark)', borderRadius: '4px', color: 'var(--color-text-muted)' }}>Momentum Tracker: Inactive</span>
-            <span style={{ fontSize: '0.8rem', padding: '4px 8px', backgroundColor: 'var(--color-charcoal-dark)', borderRadius: '4px', color: 'var(--color-text-muted)' }}>Beat Balance Analyzer: Inactive</span>
-         </div>
-      </div>
+
     </Card>
   );
 };
@@ -186,13 +180,7 @@ export const ModuleAITells = ({ chapter, onSelectFlag, activeFlag }) => {
         )}
       </div>
       
-      <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px dashed var(--color-plum-dark)' }}>
-         <div style={{ fontSize: '0.75rem', color: 'var(--color-text-dim)', textTransform: 'uppercase' }}>Advanced Features (Disabled in Demo context)</div>
-         <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
-            <span style={{ fontSize: '0.8rem', padding: '4px 8px', backgroundColor: 'var(--color-charcoal-dark)', borderRadius: '4px', color: 'var(--color-text-muted)' }}>Style Lock Integration: Inactive</span>
-            <span style={{ fontSize: '0.8rem', padding: '4px 8px', backgroundColor: 'var(--color-charcoal-dark)', borderRadius: '4px', color: 'var(--color-text-muted)' }}>Filter Toggles: Inactive</span>
-         </div>
-      </div>
+
     </Card>
   );
 };

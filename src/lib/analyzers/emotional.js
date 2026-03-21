@@ -16,9 +16,9 @@ const INTENSITY_KW = ['more', 'so much', 'too much', 'overwhelming', 'burning', 
 const BELIEF_EARLY_KW = ["won't", "can't", "don't", 'never', 'impossible', 'refuse', 'stop'];
 const BELIEF_LATE_KW = ['maybe', 'want', 'need', "shouldn't", 'could', 'what if', 'perhaps', 'try'];
 
-const POSITIVE_EMOTIONS = ['calm', 'hopeful', 'warm', 'safe', 'brave', 'determined', 'strong', 'loved', 'alive', 'peace', 'relief'];
-const NEGATIVE_EMOTIONS = ['angry', 'furious', 'terrified', 'broken', 'cold', 'numb', 'lost', 'alone', 'despair', 'panic', 'shame'];
-const PUSHPULL_EMOTIONS = ['confused', 'torn', 'uncertain', 'aching', 'restless', 'tempted', 'drawn', 'guilty', 'wild'];
+const POSITIVE_EMOTIONS = ['calm', 'hopeful', 'warm', 'safe', 'brave', 'determined', 'strong', 'loved', 'alive', 'peace', 'relief', 'light', 'bloom', 'healed', 'soothe', 'bright', 'thrill', 'free', 'power', 'steady', 'soft', 'comfort', 'smile'];
+const NEGATIVE_EMOTIONS = ['angry', 'furious', 'terrified', 'broken', 'cold', 'numb', 'lost', 'alone', 'despair', 'panic', 'shame', 'ruthless', 'sickly', 'brittle', 'ash', 'shaking', 'violent', 'dark', 'hollow', 'dead', 'choke', 'fail', 'fear', 'dread', 'horror', 'tear', 'shatter', 'blood', 'pain', 'cruel', 'harsh', 'ruin', 'destroy'];
+const PUSHPULL_EMOTIONS = ['confused', 'torn', 'uncertain', 'aching', 'restless', 'tempted', 'drawn', 'guilty', 'wild', 'burn', 'crave', 'yearn', 'trapped', 'hesitate', 'pull', 'heavy', 'edge'];
 
 function extractPrimaryEmotion(text) {
     const pHits = POSITIVE_EMOTIONS.reduce((s, kw) => s + (text.match(new RegExp(`\\b${kw}\\b`, 'gi')) || []).length, 0);

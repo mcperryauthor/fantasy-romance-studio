@@ -107,7 +107,7 @@ export const ModulePacing = ({ chapter, onSelectFlag, activeFlag }) => {
         <StatCard label="Reactive Internality" value={`${p.reactivePct || 0}%`} color="var(--color-ivory)" />
         <StatCard label="Introspection" value={`${p.introspectPct || 0}%`} color="var(--color-ivory)" />
         <StatCard label="Exposition" value={`${chapter?.analysis?.exposition?.density || 'N/A'}`} color="var(--color-ivory)" />
-        <StatCard label="Romance Flow" value={`${p.interactionReactionResponse ? 'Cyclic' : 'Static'}`} color="var(--color-burgundy)" />
+        <StatCard label="Romance Flow" value={`${p.interactionReactionResponse ? 'Escalating' : 'Stalled'}`} color="var(--color-burgundy)" />
       </div>
 
       <div>
@@ -307,10 +307,16 @@ export const ModuleEmotionalMovement = ({ chapter, onSelectFlag, activeFlag }) =
       <SectionHeader title="Emotional Arc Tracing" />
       <CoreRuleBanner rule="Emotions must shift within a scene. A scene that starts and ends on the exact same emotional note is structurally flat." />
       
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
-        <StatCard label="Emotional Movement" value={e.shifted ? 'Dynamic' : 'Static'} color={e.shifted ? '#4cA87a' : '#ffb8b8'} />
-        <StatCard label="Starting Tone" value={e.start} />
-        <StatCard label="Ending Tone" value={e.end} />
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+        <StatCard label="Arc Classification" value={e.arcStage || 'Transitional'} color={e.arcStage?.includes('Negative') || e.arcStage?.includes('Push-Pull') ? '#ffb8b8' : '#4cA87a'} />
+        <StatCard label="Behavior Shift" value={e.behaviorChange || 'NO'} color={e.behaviorChange === 'YES' ? '#4cA87a' : '#ffb8b8'} />
+      </div>
+
+      <div style={{ backgroundColor: 'var(--color-charcoal-light)', borderRadius: '8px', padding: '16px', border: '1px solid var(--color-plum-dark)', marginBottom: '24px' }}>
+         <h4 style={{ color: 'var(--color-gold-muted)', margin: '0 0 8px 0', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>4-Point Temporal Progression</h4>
+         <div style={{ color: '#fff', fontSize: '1.2rem', fontFamily: 'var(--font-serif)', lineHeight: 1.5 }}>
+            {e.formattedArc || `${e.start} → ${e.end}`}
+         </div>
       </div>
       
       <div style={{ marginTop: '16px' }}>

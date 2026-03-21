@@ -143,15 +143,30 @@ const ReviewWorkspace = () => {
                   <ActiveComponent chapter={activeChapter} onSelectFlag={setActiveFlag} activeFlag={activeFlag} />
                </div>
 
-               {/* Note Pad */}
-               <div style={{ flexShrink: 0, borderTop: '1px solid var(--color-plum-dark)', backgroundColor: 'var(--color-charcoal)', height: '160px', padding: '16px 20px', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-text-muted)', fontSize: '0.75rem', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '8px' }}>
-                     <Edit3 size={14} /> Chapter Notes
+               {/* Extracted Text Viewer */}
+               <div style={{ flexShrink: 0, borderTop: '1px solid var(--color-plum-dark)', backgroundColor: 'var(--color-charcoal)', height: '220px', padding: '20px 32px', display: 'flex', flexDirection: 'column' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--color-gold-muted)', fontSize: '0.75rem', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '12px', fontWeight: 600 }}>
+                     Extracted Manuscript Text
                   </div>
-                  <textarea 
-                     placeholder="Jot down quick thoughts... 'Increase tension in Scene 2', 'Add more physical description of the ruin'."
-                     style={{ flex: 1, backgroundColor: 'transparent', border: 'none', color: '#fff', fontSize: '0.9rem', fontFamily: 'var(--font-sans)', resize: 'none', outline: 'none', lineHeight: 1.5 }}
-                  />
+                  <div style={{ flex: 1, overflowY: 'auto', backgroundColor: '#0a0909', borderRadius: '4px', padding: '16px', border: '1px solid rgba(123, 44, 58, 0.2)', fontFamily: 'var(--font-serif)', fontSize: '0.95rem', lineHeight: 1.6, color: activeFlag ? '#fff' : 'var(--color-text-muted)', boxShadow: 'inset 0 2px 10px rgba(0,0,0,0.5)' }}>
+                     {activeFlag ? (
+                        <>
+                           <div style={{ marginBottom: '8px', fontSize: '0.7rem', color: 'var(--color-burgundy)', fontWeight: 'bold', fontFamily: 'var(--font-sans)', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                              Target: {activeFlag.type}
+                           </div>
+                           <div dangerouslySetInnerHTML={{ __html: `"${activeFlag.text || 'No specific text fragment provided for this flag.'}"` }} />
+                           {activeFlag.suggestedFix && (
+                              <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid rgba(168, 139, 93, 0.2)', fontSize: '0.85rem', color: '#a88b5d', fontFamily: 'var(--font-sans)' }}>
+                                 <strong>Rewrite Strategy:</strong> {activeFlag.suggestedFix}
+                              </div>
+                           )}
+                        </>
+                     ) : (
+                        <div style={{ display: 'flex', height: '100%', alignItems: 'center', justifyContent: 'center', fontStyle: 'italic', opacity: 0.6 }}>
+                           Select a penalty card from the breakdown above to isolate the manuscript text that triggered it.
+                        </div>
+                     )}
+                  </div>
                </div>
             </main>
           </>

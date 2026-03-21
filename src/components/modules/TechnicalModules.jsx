@@ -73,7 +73,7 @@ export const ModuleChapterPurpose = ({ chapter, onSelectFlag, activeFlag }) => {
       <SectionHeader title="Chapter Purpose Detector" />
       <CoreRuleBanner rule="If a chapter can be removed without changing the story, it gets flagged." />
       
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <StatCard label="Purpose Score" value={`${p.score || 0}/100`} color={p.score < 50 ? '#ff6b81' : 'var(--color-gold)'} subtext={p.executionLevel === 'Failed' ? 'Filler Chapter' : 'Execution level'} />
         <StatCard label="Chapter Purposes" value={p.allPurposes?.join(', ') || p.primaryPurpose || 'Unclear'} color="var(--color-ivory)" />
       </div>
@@ -99,7 +99,7 @@ export const ModulePacing = ({ chapter, onSelectFlag, activeFlag }) => {
       <SectionHeader title="Narrative Flow & Momentum" />
       <CoreRuleBanner rule="Pacing is the rate of structural change. True momentum requires emotional shifts, power plays, and escalation, regardless of physical speed." />
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <StatCard label="Pacing Velocity" value={`${p.unified?.pacingType || 'Balanced'}`} color={p.unified?.pacingType === 'Stalled' ? '#ffb8b8' : '#4cA87a'} />
         <StatCard label="Flow State" value={`${p.unified?.flowAnalysis || '-'}`} color={p.unified?.flowAnalysis === 'Escalating' ? 'var(--color-gold-muted)' : 'var(--color-ivory)'} />
         <StatCard label="Action Blocks" value={`${p.actionPct || 0}%`} color="var(--color-ivory)" />
@@ -133,7 +133,7 @@ export const ModuleRomanceTension = ({ chapter, onSelectFlag, activeFlag }) => {
       <SectionHeader title="Scene Chemistry & Tension" />
       <CoreRuleBanner rule="Attraction is not tension. Tension requires resistance, uncertainty, and delayed payoff." />
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <StatCard label="Romance Tension Score" value={`${r.score || 0}/100`} color={r.score > 70 ? '#ff6b81' : 'var(--color-ivory)'} />
       </div>
 
@@ -173,7 +173,7 @@ export const ModuleAITells = ({ chapter, onSelectFlag, activeFlag }) => {
       <SectionHeader title="AI Tells Detector (Subsurface)" />
       <CoreRuleBanner rule="Flagging over-explained emotional metaphors, unearned scene symmetry, and micro-phrase clustering." />
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
         <StatCard label="AI Match Confidence" value={`${ai.confidence || 0}%`} color={ai.confidence > 50 ? '#ffb8b8' : '#4cA87a'} />
         <StatCard label="Pattern Density" value={ai.flags?.length || 0} />
       </div>
@@ -198,7 +198,7 @@ export const ModuleConspiracyThread = ({ chapter, onSelectFlag, activeFlag }) =>
   return (
     <Card glow>
       <SectionHeader title="Conspiracy & Mystery Density" />
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
          <StatCard label="Lore Density" value={c.score || 0} color="var(--color-gold)" />
          <StatCard label="Active Arc Phase" value={c.phase === 'inactive' ? '—' : c.phase} />
       </div>
@@ -307,7 +307,7 @@ export const ModuleEmotionalMovement = ({ chapter, onSelectFlag, activeFlag }) =
       <SectionHeader title="Emotional Arc Tracing" />
       <CoreRuleBanner rule="Emotions must shift within a scene. A scene that starts and ends on the exact same emotional note is structurally flat." />
       
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
         <StatCard label="Arc Classification" value={e.arcStage || 'Transitional'} color={e.arcStage?.includes('Negative') || e.arcStage?.includes('Push-Pull') ? '#ffb8b8' : '#4cA87a'} />
         <StatCard label="Behavior Shift" value={e.behaviorChange || 'NO'} color={e.behaviorChange === 'YES' ? '#4cA87a' : '#ffb8b8'} />
       </div>

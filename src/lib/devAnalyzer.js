@@ -8,6 +8,7 @@ import { scanAIPatternsDetailed } from './analyzers/aiTells.js';
 import { scanPacing } from './analyzers/pacing.js';
 import { scanRomanceTension } from './analyzers/romance.js';
 import { classifyChapterPurposeDetailed } from './analyzers/purpose.js';
+import { scanEmotionalArc } from './analyzers/emotional.js';
 // (Note: Optional cross-chapter logic could still be maintained, keeping for compatibility)
 import { scanManuscriptAIPatterns } from './aiPatternScanner.js';
 
@@ -213,36 +214,9 @@ export function classifyChapterPurpose(chapter) {
     return classifyChapterPurposeDetailed(chapter);
 }
 
-// ─── MODULE: EMOTIONAL MOVEMENT ───────────────────────────────────────────────
-// Highly expanded lexicons to catch emotion in complex scenes
-const EMOTION_ESCALATION = ['more', 'worse', 'deeper', 'further', 'breaking', 'shatter', 'rupture', 'crack', 'burn', 'bleed', 'spiral', 'fall', 'crushed', 'overwhelming', 'too much'];
-const EMOTION_SHIFT = ['realize', 'decide', 'choose', 'accept', 'refuse', 'change', 'shift', 'turn', 'finally', 'suddenly', 'understood', 'knew', 'saw', 'revealed', 'felt'];
-const INTROSPECT_KW = ['wonder', 'reflect', 'remember', 'question', 'doubt', 'ponder', 'consider', 'why', 'how', 'if only', 'maybe'];
-
 export function analyzeEmotionalMovement(chapter) {
-  const text = chapter.rawText.toLowerCase()
-  const escalation = EMOTION_ESCALATION.reduce((s,k) => s + wordCount(text, k), 0)
-  const shift = EMOTION_SHIFT.reduce((s,k) => s + wordCount(text, k), 0)
-  const introspection = INTROSPECT_KW.reduce((s,k) => s + wordCount(text, k), 0)
-
-  const flags = []
-  if (escalation < 2 && shift < 2) {
-    flags.push({ type: 'warning', msg: 'No clear emotional movement detected. POV character may not grow or shift in this chapter.' })
-  }
-  if (introspection > 15 && shift < 2) {
-    flags.push({ type: 'note', msg: 'High introspection without emotional shift — consider whether internal processing leads to a decision.' })
-  }
-
-  // Expanded scale so large chapters don't plateau at 10 immediately
-  const score = Math.min(20, escalation + shift)
-  const label = score >= 12 ? 'Strong' : score >= 5 ? 'Moderate' : 'Flat'
-
-  // Backwards compatibility mappings for older UI components
-  const startingValence = typeof chapter.index === 'number' ? (chapter.index % 5) - 2 : 0; // Temp placeholder
-  const endingValence = score > 10 ? startingValence + 2 : startingValence;
-  const netShift = endingValence - startingValence;
-
-  return { escalation, shift, introspection, score, label, flags, startingValence, endingValence, netShift }
+   // Route to the new deep 8-step framework detector
+   return scanEmotionalArc(chapter);
 }
 
 // ─── MODULE: ROMANCE TENSION ──────────────────────────────────────────────────

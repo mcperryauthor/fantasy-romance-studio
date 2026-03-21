@@ -10,13 +10,17 @@ export default function ManuscriptDashboard({ chapters, stats, onChapterSelect }
   const povCharacters = Object.keys(stats.povDist || {});
   const loveInterests = Object.keys(stats.romanceTotals || {});
 
-  const pacingData = chapters.map(c => ({
-    name: c.title.slice(0,12) + (c.title.length > 12 ? '\u2026' : ''),
-    Dialogue: Math.round((c.analysis?.pacing?.dialogueRatio || 0) / 4), // Scaled down to be visible alongside action/introspection which are usually < 15
-    Action:   c.analysis?.pacing?.actionPct || 0,
-    Introspection: c.analysis?.pacing?.introspectPct || 0,
-    Exposition: c.analysis?.pacing?.expositionPct || 0,
-  }))
+  const pacingData = chapters.map(c => {
+    const totalExpoBlocks = (c.analysis?.exposition?.integratedCount || 0) + (c.analysis?.exposition?.passiveCount || 0) + (c.analysis?.exposition?.infoDumpCount || 0);
+    
+    return {
+      name: c.title.slice(0,12) + (c.title.length > 12 ? '\u2026' : ''),
+      Dialogue: c.analysis?.pacing?.hybridPct || 0, // Migrated Dialogue into Hybrid/Integrated blocks
+      Action:   c.analysis?.pacing?.actionPct || 0,
+      Introspection: c.analysis?.pacing?.introspectPct || 0,
+      Exposition: Math.min(100, Math.round(totalExpoBlocks * 5)) // Visually scale absolute counts into ~percentage
+    };
+  })
 
   const romanceData = chapters.map(c => {
     const row = { name: c.title.slice(0,10) + '\u2026' }
@@ -105,10 +109,10 @@ export default function ManuscriptDashboard({ chapters, stats, onChapterSelect }
               <YAxis tick={{ fill: 'var(--ivory-muted)', fontSize: 10 }} />
               <Tooltip contentStyle={{ background: 'var(--bg-elevated)', border: '1px solid var(--border)', fontSize: '0.78rem', color: 'var(--ivory)' }} />
               <Legend wrapperStyle={{ fontSize: '0.75rem', color: 'var(--ivory-muted)' }} />
-              <Bar dataKey="Dialogue" fill="#BFA05A" radius={[2,2,0,0]} />
+              <Bar dataKey="Dialogue" fill="#BFA05A" radius={[2,2,0,0]} name="Hybrid/Integrated" />
               <Bar dataKey="Action" fill="#c24f4f" radius={[2,2,0,0]} />
               <Bar dataKey="Introspection" fill="#9D6FA8" radius={[2,2,0,0]} />
-              <Bar dataKey="Exposition" fill="#4f7ec2" radius={[2,2,0,0]} />
+              <Bar dataKey="Exposition" fill="#4f7ec2" radius={[2,2,0,0]} name="Exposition & Lore" />
             </BarChart>
           </ResponsiveContainer>
         </div>

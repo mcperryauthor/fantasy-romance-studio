@@ -99,8 +99,12 @@ export const ModulePacing = ({ chapter, onSelectFlag, activeFlag }) => {
       <SectionHeader title="Narrative Flow & Momentum" />
       <CoreRuleBanner rule="Pacing is the balance between movement and weight. Too much of either kills momentum." />
 
-      <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', marginBottom: '24px' }}>
         <StatCard label="Pacing Score" value={`${p.score || 0}/100`} color={p.score < 60 ? '#ffb8b8' : '#4cA87a'} />
+        <StatCard label="Action Blocks" value={`${p.actionPct || 0}%`} color="var(--color-ivory)" />
+        <StatCard label="Introspection" value={`${p.introspectPct || 0}%`} color="var(--color-ivory)" />
+        <StatCard label="Exposition" value={`${chapter?.analysis?.exposition?.density || 'N/A'}`} color="var(--color-ivory)" />
+        <StatCard label="Romance Flow" value={`${p.interactionReactionResponse ? 'Cyclic' : 'Static'}`} color="var(--color-burgundy)" />
       </div>
 
       <div>

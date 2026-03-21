@@ -75,7 +75,7 @@ export const ModuleChapterPurpose = ({ chapter, onSelectFlag, activeFlag }) => {
       
       <div style={{ display: 'flex', gap: '16px', marginBottom: '24px' }}>
         <StatCard label="Purpose Score" value={`${p.score || 0}/100`} color={p.score < 50 ? '#ff6b81' : 'var(--color-gold)'} subtext={p.executionLevel === 'Failed' ? 'Filler Chapter' : 'Execution level'} />
-        <StatCard label="Primary Purpose" value={p.primaryPurpose || 'None'} color="var(--color-ivory)" subtext={p.allPurposes?.length > 1 ? `+ ${p.allPurposes.length - 1} secondary` : ''} />
+        <StatCard label="Chapter Purposes" value={p.allPurposes?.join(', ') || p.primaryPurpose || 'Unclear'} color="var(--color-ivory)" />
       </div>
 
       <div>

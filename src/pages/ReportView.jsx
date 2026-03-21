@@ -99,7 +99,7 @@ const ReportView = () => {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px', fontSize: '0.85rem', color: '#555', marginBottom: '24px' }}>
                    <span><strong>POV:</strong> {chapter.pov || 'Unknown'}</span>
                    <span><strong>Words:</strong> {chapter.wordCount?.toLocaleString() || 0}</span>
-                   <span><strong>Purpose:</strong> {a.purpose?.label || 'N/A'}</span>
+                   <span><strong>Purposes:</strong> {a.purpose?.allPurposes?.join(', ') || a.purpose?.primaryPurpose || a.purpose?.label || 'N/A'}</span>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: '24px' }}>

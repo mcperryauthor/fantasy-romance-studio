@@ -75,19 +75,14 @@ export function scanPacing(chapter) {
 
             // STEP 3: SEGMENT CLASSIFICATION
             let classification = 'Neutral';
-            // Eager Hybrid Classification: If a paragraph blends both exterior and interior movement, it is a Hybrid execution.
-            if (totalActionSignals > 0 && totalIntroSignals > 0) {
-                classification = 'HYBRID';
-                actionStreak = 0;
-                introStreak = 0;
-                romanceFlowPattern.push('H');
-            } else if (totalActionSignals > 0) {
+            // Strict Categorization (No Hybrid Voids)
+            if (totalActionSignals > (totalIntroSignals + 1)) {
                 classification = 'ACTION';
                 totalActionBlocks++;
                 actionStreak++;
                 introStreak = 0;
                 romanceFlowPattern.push('A');
-            } else if (totalIntroSignals > 0) {
+            } else if (totalIntroSignals > (totalActionSignals + 1)) {
                 classification = 'INTROSPECTION';
                 totalIntroBlocks++;
                 introStreak++;

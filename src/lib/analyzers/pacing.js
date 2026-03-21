@@ -78,7 +78,6 @@ export function scanPacing(chapter) {
             // Eager Hybrid Classification: If a paragraph blends both exterior and interior movement, it is a Hybrid execution.
             if (totalActionSignals > 0 && totalIntroSignals > 0) {
                 classification = 'HYBRID';
-                totalHybridBlocks++;
                 actionStreak = 0;
                 introStreak = 0;
                 romanceFlowPattern.push('H');

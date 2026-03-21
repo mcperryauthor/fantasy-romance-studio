@@ -398,9 +398,8 @@ export function analyzePacing(chapter) {
 
 // ─── MASTER ANALYSIS ──────────────────────────────────────────────────────────
 export function analyzeManuscript(chapters, settings = {}) {
-  let analyzed = chapters.map(chapter => ({
-    ...chapter,
-    analysis: {
+  let analyzed = chapters.map(chapter => {
+    const analysis = {
       purpose:    classifyChapterPurpose(chapter),
       emotional:  analyzeEmotionalMovement(chapter),
       romance:    analyzeRomanceTension(chapter, settings),
@@ -410,8 +409,30 @@ export function analyzeManuscript(chapters, settings = {}) {
       pacing:     analyzePacing(chapter),
       exposition: scanExposition(chapter),
       aiPatterns: scanAIPatternsDetailed(chapter),
-    },
-  }))
+    };
+
+    // ─── PRIORITY RESOLUTION SYSTEM (CONTRADICTION BLOCKER) ───
+    const hasReactive = analysis.pacing.reactivePct >= 10 || analysis.pacing.flags.some(f => f.type === 'Reactive Mastery');
+    const hasBehavior = analysis.emotional.behaviorChange === 'YES';
+    const isShift = analysis.emotional.arcStage && !analysis.emotional.arcStage.includes('Static');
+    
+    // If ANY of these highest-priority signals exist -> Emotional Grounding = TRUE
+    if (hasReactive || hasBehavior || isShift) {
+        // Strip out any weak contradictory Action/Introspection penalties
+        analysis.pacing.flags = analysis.pacing.flags.filter(f => 
+            !f.message.toLowerCase().includes('low emotional grounding') &&
+            !f.message.toLowerCase().includes('lack emotional consequence') &&
+            f.type !== 'Action Without Internality' &&
+            f.type !== 'Action-Introspection Disconnect'
+        );
+        
+        analysis.emotional.flags = analysis.emotional.flags.filter(f => 
+            !f.message.toLowerCase().includes('low introspection')
+        );
+    }
+    
+    return { ...chapter, analysis };
+  })
   
   analyzed = analyzed.map(chapter => {
     chapter.analysis.povVoice = analyzePOVVoice(chapter, analyzed, settings)

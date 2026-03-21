@@ -179,7 +179,7 @@ export function scanPacing(chapter) {
 
         // ROMANCE OVERLAY
         const flowString = romanceFlowPattern.join('');
-        if (flowString.includes('AIA') || flowString.includes('AHA')) {
+        if (flowString.includes('AIA') || flowString.includes('ARA') || flowString.includes('AHA')) {
             hasGoodRomanceFlow = true;
             pushPullPresent = true;
         }
@@ -189,25 +189,12 @@ export function scanPacing(chapter) {
             flags.push({
                 type: 'Weak Interaction Cycle',
                 severity: -10,
-                message: 'Romance not externalized. Thinking about love interest continuously without interacting.',
+                message: 'Romance not externalized. Thinking continuously without interacting.',
                 suggestedFix: 'Force them into the same room.',
                 text: 'Detected in Scene ' + (sceneIdx + 1),
                 sceneIndex: sceneIdx
             });
             emittedRules.add('Romance not externalized');
-        }
-
-        // Bad Romance Flow: Constant Action
-        if (flowString.includes('AAAA') && !emittedRules.has('Romance lacks emotional depth')) {
-             flags.push({
-                type: 'Weak Interaction Cycle',
-                severity: -10,
-                message: 'Romance lacks emotional depth. Constant interaction without internal processing/reaction.',
-                suggestedFix: 'Show the visceral internal reaction to the proximity or touch.',
-                text: 'Detected in Scene ' + (sceneIdx + 1),
-                sceneIndex: sceneIdx
-            });
-            emittedRules.add('Romance lacks emotional depth');
         }
     });
 
@@ -233,7 +220,7 @@ export function scanPacing(chapter) {
     let flowPattern = 'Balanced';
     if (actionPct > 60) flowPattern = 'Action Heavy';
     if (introspectPct > 50) flowPattern = 'Introspection Heavy';
-    if (reactivePct > 25) flowPattern = 'Emotion-Driven (Balanced)'; // Overrides action heavy if reactive
+    if (reactivePct >= 10) flowPattern = 'Emotion-Driven (Reactive Mastery)'; // 10% is HIGH for physical behavioral reaction. Overrides action.
 
     return {
         score: finalScore,

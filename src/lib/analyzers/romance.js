@@ -10,6 +10,7 @@ const REPETITIVE_CHEMISTRY = /\b(heart races|heart pounded|can't breathe|breath 
 const SAFE_DIALOGUE = /^(are you okay|yes|no|i'm fine|good|thank you|sorry|excuse me|pardon)\b/i;
 const PROXIMITY_KW = ['step closer', 'stepped', 'close', 'touch', 'brush', 'lean', 'against', 'skin', 'space between'];
 const POWER_KW = ['submit', 'command', 'obey', 'kneel', 'force', 'yield', 'trap', 'corner', 'stare down', 'chin', 'grip', 'hold', 'leash', 'bow', 'claim', 'beg', 'throat', 'pulse', 'prey', 'predator', 'hunt', 'choke', 'shatter'];
+const BODY_RESPONSE_KW = ['breath', 'heart', 'pulse', 'shiver', 'tremble', 'shatter', 'gasp', 'swallow', 'stutter', 'flush', 'heat', 'shaking'];
 
 export function scanRomanceTension(chapter, settings = {}) {
   const flags = [];
@@ -37,6 +38,20 @@ export function scanRomanceTension(chapter, settings = {}) {
     const resolutionHits = RESOLUTION_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
     const proximityHits = PROXIMITY_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
     const powerHits = POWER_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
+    const bodyHits = BODY_RESPONSE_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
+    
+    // 0. Missing Romance Depth (High: -15)
+    if ((attractionHits > 0 || proximityHits > 0) && resistanceHits === 0 && powerHits === 0 && bodyHits === 0) {
+        flags.push({
+            type: 'Romance Lacks Depth',
+            severity: -15,
+            message: 'Interaction features proximity or attraction, but lacks resistance, power dynamics, or involuntary physical reaction.',
+            suggestedFix: 'Introduce a power imbalance, behavioral shift, or internal resistance.',
+            text: `Scene ${sceneIdx+1} with ${liNames}`,
+            sceneIndex: sceneIdx
+        });
+        tensionScore -= 15;
+    }
     
     let rawTension = 0;
     if (attractionHits > 0 || proximityHits > 0) {

@@ -1,224 +1,227 @@
 /**
  * Pacing Detector (Narrative Flow & Momentum Scan)
  * Evaluates whether scenes and chapters maintain forward momentum, variation in rhythm, and narrative progression.
+ * Includes advanced Action vs Introspection Block Tracking and Romance Flow Overlay.
  */
 
-// Keyword clusters for semantic analysis
-const ACTION_KW = ['fight', 'run', 'strike', 'attack', 'fly', 'leap', 'crash', 'burst', 'race', 'chase', 'slam', 'shove', 'grab'];
-const STAKES_KW = ['die', 'death', 'kill', 'danger', 'risk', 'lose', 'fail', 'blood', 'survive', 'ruin', 'trapped', 'expose'];
-const EMOTION_KW = ['realize', 'decide', 'choose', 'accept', 'refuse', 'change', 'shift', 'turn', 'understand', 'fear', 'furious'];
+// STEP 1: ACTION LEXICON
+const PHYSICAL_VERBS = ['walked', 'stepped', 'turned', 'grabbed', 'pulled', 'pushed', 'opened', 'closed', 'crossed', 'leaned', 'flinched', 'hit', 'ran', 'fell', 'caught', 'struck', 'shoved'];
+const TIME_PROGRESSION = ['then', 'when', 'as', 'before', 'after', 'suddenly'];
+const ENV_INTERACTION = ['door', 'glass', 'shattered', 'table', 'chair', 'wall', 'floor', 'ground', 'sword', 'blade', 'weapon'];
+
+// STEP 2: INTROSPECTION LEXICON
+const THOUGHT_MARKERS = ['thought', 'knew', 'realized', 'wondered', 'felt', 'seemed', "couldn't", 'why', 'how'];
+const EMOTION_PROCESSING = ['fear', 'guilt', 'desire', 'shame', 'longing', 'ache', 'weight', 'pressure', 'panic', 'angry', 'furious', 'sad', 'empty'];
+const MEMORY_MARKERS = ['before', 'once', 'used to', 'remembered', 'had been', 'memory', 'past'];
+const HYPOTHETICALS = ['what if', 'maybe', "shouldn't", "can't", 'perhaps', 'if only'];
+
+// Helpers
+function countHits(text, lexicons) {
+    const lo = text.toLowerCase();
+    let hits = 0;
+    lexicons.forEach(kw => {
+        hits += (lo.match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length;
+    });
+    return hits;
+}
 
 export function scanPacing(chapter) {
-  const flags = [];
-  const scenes = chapter.scenes || [];
-  const emittedRules = new Set();
-  
-  let totalScore = 100;
-
-  // Scene-Level Analysis
-  scenes.forEach((scene, sceneIdx) => {
-    const text = scene.text || '';
-    if (!text.trim()) return;
+    const flags = [];
+    const emittedRules = new Set();
+    const scenes = chapter.scenes || [];
     
-    const sentences = text.match(/[^.!?]+[.!?]+/g) || [];
-    const paragraphs = text.split(/\n\s*\n|\n/).filter(p => p.trim());
-    
-    if (sentences.length === 0) return;
+    let totalScore = 100;
+    let totalActionBlocks = 0;
+    let totalIntroBlocks = 0;
+    let totalHybridBlocks = 0;
+    let totalParagraphs = 0;
 
-    // 1. Slow Drag Detector (High Severity: -15)
-    // 3 continuous paragraphs with no action or dialogue
-    let dragCount = 0;
-    paragraphs.forEach(p => {
-      const isDialogue = /["“'”’]/.test(p);
-      const hasAction = ACTION_KW.some(kw => p.toLowerCase().includes(kw));
-      if (!isDialogue && !hasAction) dragCount++;
-      else dragCount = 0;
-      
-      if (dragCount >= 3 && !emittedRules.has('Pacing Drag')) {
-        flags.push({
-          type: 'Pacing Drag',
-          severity: -15,
-          message: 'Scene lacks forward movement (3+ paragraphs of pure description/thought).',
-          suggestedFix: 'Add action, interruption, or decision.',
-          text: p.slice(0, 50) + '...',
-          sceneIndex: sceneIdx
+    let hasGoodRomanceFlow = false;
+    let pushPullPresent = false;
+
+    scenes.forEach((scene, sceneIdx) => {
+        const text = scene.text || '';
+        if (!text.trim()) return;
+        
+        const paragraphs = text.split(/\\n\\s*\\n|\\n/).filter(p => p.trim());
+        if (paragraphs.length === 0) return;
+
+        let actionStreak = 0;
+        let introStreak = 0;
+        
+        // Romance Flow Tracking
+        let romanceFlowPattern = []; // Keep track of continuous A-I-A sequences
+
+        paragraphs.forEach((p, pIdx) => {
+            totalParagraphs++;
+            
+            // 1. ACTION SIGNALS
+            const physicalHits = countHits(p, PHYSICAL_VERBS);
+            const timeHits = countHits(p, TIME_PROGRESSION);
+            const envHits = countHits(p, ENV_INTERACTION);
+            const isDialogue = /["“'”’]/.test(p);
+            
+            const totalActionSignals = physicalHits + timeHits + (isDialogue ? 3 : 0) + envHits;
+
+            // 2. INTROSPECTION SIGNALS
+            const thoughtHits = countHits(p, THOUGHT_MARKERS);
+            const emotionHits = countHits(p, EMOTION_PROCESSING);
+            const memoryHits = countHits(p, MEMORY_MARKERS);
+            const hypoHits = countHits(p, HYPOTHETICALS);
+            
+            const totalIntroSignals = thoughtHits + emotionHits + memoryHits + hypoHits;
+
+            // STEP 3: SEGMENT CLASSIFICATION
+            let classification = 'Neutral';
+            if (totalActionSignals > (totalIntroSignals + 1)) {
+                classification = 'ACTION';
+                totalActionBlocks++;
+                actionStreak++;
+                introStreak = 0;
+                romanceFlowPattern.push('A');
+            } else if (totalIntroSignals > (totalActionSignals + 1)) {
+                classification = 'INTROSPECTION';
+                totalIntroBlocks++;
+                introStreak++;
+                actionStreak = 0;
+                romanceFlowPattern.push('I');
+            } else if (totalActionSignals > 0 && totalIntroSignals > 0) {
+                classification = 'HYBRID';
+                totalHybridBlocks++;
+                actionStreak = 0;
+                introStreak = 0;
+                romanceFlowPattern.push('H');
+            } else {
+                actionStreak = 0;
+                introStreak = 0;
+            }
+
+            // STEP 4: FAILURE DETECTION
+            
+            // 1. Introspection Overload
+            if (introStreak >= 3 && !emittedRules.has('Introspection Overload')) {
+                flags.push({
+                    type: 'Introspection Overload',
+                    severity: -15,
+                    message: 'Scene stalled in internal processing.',
+                    suggestedFix: 'Break up the 3+ internal blocks with external physical action or dialogue.',
+                    text: p.slice(0, 50) + '...',
+                    sceneIndex: sceneIdx
+                });
+                emittedRules.add('Introspection Overload');
+            }
+
+            // 2. Action Without Internality
+            if (actionStreak >= 4 && !emittedRules.has('Low emotional grounding')) {
+                flags.push({
+                    type: 'Action Without Internality',
+                    severity: -10,
+                    message: 'Low emotional grounding. Long action sequence with no introspection.',
+                    suggestedFix: 'Show what the character feels or fears about this action sequence.',
+                    text: p.slice(0, 50) + '...',
+                    sceneIndex: sceneIdx
+                });
+                emittedRules.add('Low emotional grounding');
+            }
+
+            // 4. Static Introspection
+            // Re-evaluating the same hypo without action
+            if (classification === 'INTROSPECTION' && hypoHits > 2 && introStreak > 1 && !emittedRules.has('Static Introspection')) {
+                 flags.push({
+                    type: 'Static Introspection',
+                    severity: -10,
+                    message: 'Repetitive internal loop detected without belief shift.',
+                    suggestedFix: 'Force the character out of their head and into a choice.',
+                    text: p.slice(0, 50) + '...',
+                    sceneIndex: sceneIdx
+                });
+                emittedRules.add('Static Introspection');
+            }
         });
-        emittedRules.add('Pacing Drag');
-      }
-    });
 
-    // 2. Empty Action Detector (Medium: -10)
-    // High action density but 0 stakes or emotional shift
-    const actionDensity = ACTION_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length, 0);
-    const stakesDensity = STAKES_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length, 0);
-    const emotionDensity = EMOTION_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length, 0);
-    if (actionDensity > 5 && stakesDensity === 0 && emotionDensity === 0) {
-      flags.push({
-        type: 'Empty Action',
-        severity: -10,
-        message: 'Movement without narrative impact (high action, zero stakes).',
-        suggestedFix: 'Tie action to tension or consequence.',
-        text: 'Action sequence in scene ' + (sceneIdx + 1),
-        sceneIndex: sceneIdx
-      });
-    }
-
-    // 3. Internal Looping Detector (High: -10)
-    const loopMatch = text.match(/\b(why\s(.*?)|\bi don't understand|\bdoesn't make sense)\b/gi);
-    if (loopMatch && loopMatch.length >= 3 && !emittedRules.has('Thought Loop')) {
-      flags.push({
-        type: 'Thought Loop',
-        severity: -10,
-        message: 'Internal conflict is repeating without development.',
-        suggestedFix: 'Progress thought OR interrupt with action.',
-        text: loopMatch.slice(0, 3).join(' | '),
-        sceneIndex: sceneIdx
-      });
-      emittedRules.add('Thought Loop');
-    }
-
-    // 4. Overloaded Density Detector (High: -10)
-    // If action, emotion, and dialogue all happen within the same 2 sentences
-    for (let i = 0; i < sentences.length - 1; i++) {
-        const combined = (sentences[i] + ' ' + sentences[i+1]).toLowerCase();
-        const hasA = ACTION_KW.some(kw => combined.includes(kw));
-        const hasE = EMOTION_KW.some(kw => combined.includes(kw));
-        const hasD = /["“'”’]/.test(combined);
-        const hasS = STAKES_KW.some(kw => combined.includes(kw));
-        if (hasA && hasE && hasD && hasS && combined.split(' ').length < 30) {
+        // 3. Action-Introspection Disconnect
+        // If the scene had massive action but 0 intro blocks
+        if (totalActionBlocks > 3 && totalIntroBlocks === 0 && !emittedRules.has('Action-Introspection Disconnect')) {
             flags.push({
-              type: 'Overloaded Sequence',
-              severity: -10,
-              message: 'Too many major events compressed into one short sequence.',
-              suggestedFix: 'Break into multiple beats or expand the sensory response.',
-              text: combined,
-              sceneIndex: sceneIdx
+                type: 'Action-Introspection Disconnect',
+                severity: -10,
+                message: 'Events lack emotional consequence.',
+                suggestedFix: 'The character must have a reaction to the scene events.',
+                text: 'Entire scene ' + (sceneIdx + 1),
+                sceneIndex: sceneIdx
             });
-            break; // Once per scene
+            emittedRules.add('Action-Introspection Disconnect');
         }
-    }
 
-    // 6. Dialogue Stall Detector (Medium: -10)
-    // Back to back dialogue lines under 5 words each
-    let shortDialogueStreak = 0;
-    paragraphs.forEach(p => {
-        if (/^["“'”’].*["“'”’]$/.test(p.trim()) && p.split(' ').length <= 5) {
-            shortDialogueStreak++;
-        } else {
-            shortDialogueStreak = 0;
+        // ROMANCE OVERLAY
+        const flowString = romanceFlowPattern.join('');
+        if (flowString.includes('AIA') || flowString.includes('AHA')) {
+            hasGoodRomanceFlow = true;
+            pushPullPresent = true;
         }
-        if (shortDialogueStreak >= 4 && !emittedRules.has('Dialogue Stall')) {
+        
+        // Bad Romance Flow: Too much introspection
+        if (flowString.includes('IIII') && !emittedRules.has('Romance not externalized')) {
             flags.push({
-              type: 'Dialogue Stall',
-              severity: -10,
-              message: 'Dialogue lacks progression or tension (rapid ping-pong of short pleasantries).',
-              suggestedFix: 'Add subtext, conflict, or reveal.',
-              text: p.trim(),
-              sceneIndex: sceneIdx
+                type: 'Weak Interaction Cycle',
+                severity: -10,
+                message: 'Romance not externalized. Thinking about love interest continuously without interacting.',
+                suggestedFix: 'Force them into the same room.',
+                text: 'Detected in Scene ' + (sceneIdx + 1),
+                sceneIndex: sceneIdx
             });
-            emittedRules.add('Dialogue Stall');
+            emittedRules.add('Romance not externalized');
         }
-    });
 
-    // 7. Monotone Rhythm Detector (Medium: -5)
-    // 5+ sentences in a row with almost exactly identical word counts (e.g. 5-7 words)
-    let monotoneStreak = 0;
-    let prevLen = -1;
-    sentences.forEach(s => {
-        const len = s.split(/\s+/).length;
-        if (prevLen > 0 && Math.abs(len - prevLen) <= 2) {
-            monotoneStreak++;
-        } else {
-            monotoneStreak = 0;
-        }
-        prevLen = len;
-        if (monotoneStreak >= 5 && !emittedRules.has('Rhythm Flatline')) {
-            flags.push({
-              type: 'Rhythm Flatline',
-              severity: -5,
-              message: 'Sentence structure lacks variation (consistent length block).',
-              suggestedFix: 'Introduce short lines for impact and longer lines for flow.',
-              text: sentences.slice(-3).join(' '),
-              sceneIndex: sceneIdx
-            });
-            emittedRules.add('Rhythm Flatline');
-        }
-    });
-
-    // 9. Transition Gap Detector (Medium: -5)
-    // Scene start without sensory grounding
-    if (sceneIdx > 0) {
-        const firstTwo = sentences.slice(0, 2).join(' ').toLowerCase();
-        const hasSensory = /\b(air|smell|scent|taste|sound|cold|warm|bright|dark|room|forest|street)\b/i.test(firstTwo);
-        if (!hasSensory) {
+        // Bad Romance Flow: Constant Action
+        if (flowString.includes('AAAA') && !emittedRules.has('Romance lacks emotional depth')) {
              flags.push({
-              type: 'Weak Transition',
-              severity: -5,
-              message: 'Scene shift lacks spatial/sensory grounding in opening lines.',
-              suggestedFix: 'Add one anchor detail (sensory or spatial).',
-              text: firstTwo,
-              sceneIndex: sceneIdx
+                type: 'Weak Interaction Cycle',
+                severity: -10,
+                message: 'Romance lacks emotional depth. Constant interaction without internal processing/reaction.',
+                suggestedFix: 'Show the visceral internal reaction to the proximity or touch.',
+                text: 'Detected in Scene ' + (sceneIdx + 1),
+                sceneIndex: sceneIdx
             });
+            emittedRules.add('Romance lacks emotional depth');
         }
-    }
+    });
 
-    // 10. Weak Scene Ending (High: -10)
-    const lastThree = sentences.slice(-3).join(' ').toLowerCase();
-    const endingHasIntrospection = /\b(thought about|wondered|realized|understood|maybe|perhaps)\b/i.test(lastThree);
-    const endingHasAction = ACTION_KW.some(kw => lastThree.includes(kw));
-    const endingHasDialogue = /["“'”’]/.test(lastThree);
+    flags.forEach(f => {
+        totalScore += f.severity;
+    });
 
-    if (endingHasIntrospection && !endingHasAction && !endingHasDialogue) {
-        flags.push({
-              type: 'Weak Ending',
-              severity: -10,
-              message: 'Scene ends without tension or hook (purely internal summary).',
-              suggestedFix: 'End on unresolved tension, sharp action, or charged dialogue.',
-              text: lastThree,
-              sceneIndex: sceneIdx
-        });
-    } else {
-        totalScore += 15; // Positive point for effective scene ending
-    }
+    const finalScore = Math.max(0, Math.min(100, totalScore));
+    
+    const breakdown = {};
+    flags.forEach(f => {
+        breakdown[f.type] = (breakdown[f.type] || 0) + 1;
+    });
 
-    // Positive Signals
-    if (stakesDensity > 0) totalScore += 15; // Escalation 
-    if (sceneIdx > 0 && /\b(air|smell|scent|taste|sound|cold|warm|bright|dark|room|forest|street)\b/i.test(sentences.slice(0, 2).join(' ').toLowerCase())) {
-        totalScore += 10; // Strong transition
-    }
-  });
+    // Percentages
+    const actionPct = totalParagraphs > 0 ? Math.round((totalActionBlocks / totalParagraphs) * 100) : 0;
+    const introspectPct = totalParagraphs > 0 ? Math.round((totalIntroBlocks / totalParagraphs) * 100) : 0;
+    const hybridPct = totalParagraphs > 0 ? Math.round((totalHybridBlocks / totalParagraphs) * 100) : 0;
+    const dialogueRatio = actionPct; // Backwards compatible visualization mapping
 
-  // Consolidate Penalties
-  flags.forEach(f => {
-      totalScore += f.severity; // Severity is negative
-  });
+    let flowPattern = 'Balanced';
+    if (actionPct > 60) flowPattern = 'Action Heavy';
+    if (introspectPct > 50) flowPattern = 'Introspection Heavy';
 
-  const finalScore = Math.max(0, Math.min(100, totalScore));
-  
-  const breakdown = {};
-  flags.forEach(f => {
-    breakdown[f.type] = (breakdown[f.type] || 0) + 1;
-  });
-
-  // Calculate global chapter percentages for the Pacing Bar Chart
-  const allText = chapter.rawText || '';
-  const allTextLower = allText.toLowerCase();
-  const allParagraphs = allText.split(/\n/).filter(p => p.trim());
-  const paragraphsCount = allParagraphs.length || 1;
-  const wordCount = allText.split(/\s+/).length || 1;
-
-  const dialogueRatio = Math.round((allParagraphs.filter(p => /["“'”’]/.test(p)).length / paragraphsCount) * 100);
-  const actionPct = Math.round((ACTION_KW.reduce((s, kw) => s + (allTextLower.match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0) / wordCount) * 1000) / 10;
-  const introspectPct = Math.round((['thought', 'wondered', 'felt', 'realized', 'knew'].reduce((s, kw) => s + (allTextLower.match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0) / wordCount) * 1000) / 10;
-  const expositionPct = Math.round((['history', 'years ago', 'the city', 'the world', 'magic', 'power'].reduce((s, kw) => s + (allTextLower.match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0) / wordCount) * 1000) / 10;
-
-  return {
-    score: finalScore,
-    flags,
-    breakdown,
-    dialogueRatio,
-    actionPct,
-    introspectPct,
-    expositionPct
-  };
+    return {
+        score: finalScore,
+        flags: flags, // Return raw array for mapping
+        breakdown,
+        // Legacy numeric keys for the UI 
+        actionPct,
+        introspectPct,
+        hybridPct,
+        dialogueRatio, 
+        expositionPct: 0, // Migrated into hybrid
+        
+        // New Overlay Data
+        flowPattern,
+        pushPullPresent,
+        interactionReactionResponse: hasGoodRomanceFlow
+    };
 }

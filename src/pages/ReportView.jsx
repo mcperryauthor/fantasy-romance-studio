@@ -107,8 +107,8 @@ const ReportView = () => {
                    {/* Pacing & Structure */}
                    <div style={{ backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px' }}>
                      <h5 style={{ fontSize: '1rem', color: '#7b2c3a', marginBottom: '12px', borderBottom: '1px solid rgba(123,44,58,0.2)', paddingBottom: '4px' }}>Pacing & Structure</h5>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Flow:</strong> {a.pacing?.dragRisk ? 'High Drag Risk' : 'Balanced'}</p>
-                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Action:</strong> {a.pacing?.actionPct || 0}% | <strong>Dialogue:</strong> {Math.min(100, Math.round(a.pacing?.dialogueRatio || 0))}% | <strong>Introspect:</strong> {a.pacing?.introspectPct || 0}%</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Flow:</strong> {a.pacing?.flowPattern || 'Balanced'}</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Action:</strong> {a.pacing?.actionPct || 0}% | <strong>Introspection:</strong> {a.pacing?.introspectPct || 0}% | <strong>Hybrid:</strong> {a.pacing?.hybridPct || 0}%</p>
                      <ul style={{ paddingLeft: '20px', margin: '8px 0', fontSize: '0.9rem', color: '#333' }}>
                         {a.pacing?.flags?.map((f, i) => <li key={`pf-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}
                         {a.purpose?.flags?.map((f, i) => <li key={`cf-${i}`} style={{ marginBottom: '4px' }}>{f.msg || f.message}</li>)}
@@ -119,6 +119,7 @@ const ReportView = () => {
                    <div style={{ backgroundColor: '#f9f9fa', padding: '16px', borderRadius: '8px' }}>
                      <h5 style={{ fontSize: '1rem', color: '#a88b5d', marginBottom: '12px', borderBottom: '1px solid rgba(168,139,93,0.3)', paddingBottom: '4px' }}>Character & Romance</h5>
                      <p style={{ margin: '4px 0', fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}><strong>Emotional Arc:</strong> {a.emotional?.start || '?'} → {a.emotional?.end || '?'}</p>
+                     <p style={{ margin: '4px 0', fontSize: '0.9rem' }}><strong>Romance Flow:</strong> {a.pacing?.interactionReactionResponse ? "Cyclic (Action → Reaction)" : "Stalled"} | <strong>Push-Pull:</strong> {a.pacing?.pushPullPresent ? "Yes" : "No"}</p>
                      <p style={{ margin: '4px 0', fontSize: '0.9rem' }}>
                        <strong>Active Romantic Tension:</strong>{' '}
                        {a.romance?.byCharacter && Object.keys(a.romance.byCharacter).length > 0 

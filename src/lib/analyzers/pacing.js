@@ -33,7 +33,7 @@ export function scanPacing(chapter) {
     let totalScore = 100;
     let totalActionBlocks = 0;
     let totalIntroBlocks = 0;
-    let totalHybridBlocks = 0;
+    let totalDialogueBlocks = 0;
     let totalParagraphs = 0;
 
     let hasGoodRomanceFlow = false;
@@ -45,6 +45,8 @@ export function scanPacing(chapter) {
         
         const paragraphs = text.split(/\\n\\s*\\n|\\n/).filter(p => p.trim());
         if (paragraphs.length === 0) return;
+
+        totalDialogueBlocks += paragraphs.filter(p => /["“'”’]/.test(p)).length;
 
         let actionStreak = 0;
         let introStreak = 0;
@@ -204,8 +206,7 @@ export function scanPacing(chapter) {
     const introspectPct = totalParagraphs > 0 ? Math.round((totalIntroBlocks / totalParagraphs) * 100) : 0;
     
     // Count exact paragraphs containing dialogue for a pure stat
-    const dialogueBlocks = paragraphs.filter(p => /["“'”’]/.test(p)).length;
-    const dialogueRatio = totalParagraphs > 0 ? Math.round((dialogueBlocks / totalParagraphs) * 100) : 0;
+    const dialogueRatio = totalParagraphs > 0 ? Math.round((totalDialogueBlocks / totalParagraphs) * 100) : 0;
 
     let flowPattern = 'Balanced';
     if (actionPct > 60) flowPattern = 'Action Heavy';

@@ -202,8 +202,10 @@ export function scanPacing(chapter) {
     // Percentages
     const actionPct = totalParagraphs > 0 ? Math.round((totalActionBlocks / totalParagraphs) * 100) : 0;
     const introspectPct = totalParagraphs > 0 ? Math.round((totalIntroBlocks / totalParagraphs) * 100) : 0;
-    const hybridPct = totalParagraphs > 0 ? Math.round((totalHybridBlocks / totalParagraphs) * 100) : 0;
-    const dialogueRatio = actionPct; // Backwards compatible visualization mapping
+    
+    // Count exact paragraphs containing dialogue for a pure stat
+    const dialogueBlocks = paragraphs.filter(p => /["“'”’]/.test(p)).length;
+    const dialogueRatio = totalParagraphs > 0 ? Math.round((dialogueBlocks / totalParagraphs) * 100) : 0;
 
     let flowPattern = 'Balanced';
     if (actionPct > 60) flowPattern = 'Action Heavy';
@@ -213,12 +215,10 @@ export function scanPacing(chapter) {
         score: finalScore,
         flags: flags, // Return raw array for mapping
         breakdown,
-        // Legacy numeric keys for the UI 
+        // UI visualization variables
         actionPct,
         introspectPct,
-        hybridPct,
         dialogueRatio, 
-        expositionPct: 0, // Migrated into hybrid
         
         // New Overlay Data
         flowPattern,

@@ -3,13 +3,13 @@
  * Identifies whether a chapter has a clear narrative function, and whether that function is executed, weak, or missing.
  */
 
-const PLOT_KW = ['attack', 'reveal', 'discover', 'escape', 'trap', 'decide', 'choose', 'confront', 'find'];
-const CHARACTER_KW = ['realize', 'understand', 'change', 'accept', 'refuse', 'grief', 'memory', 'belief'];
-const ROMANCE_KW = ['kiss', 'touch', 'pull', 'tension', 'desire', 'resist', 'yield', 'burn'];
-const WORLD_KW = ['history', 'lore', 'rule', 'magic', 'realm', 'system', 'court', 'explain'];
-const CONFLICT_KW = ['argue', 'fight', 'demand', 'snap', 'hiss', 'threaten', 'strike', 'clash'];
-const PASSIVITY_KW = ['watched', 'waited', 'stood there', 'listened', 'observed', 'nodded', 'followed'];
-const SETUP_KW = ['secret', 'hidden', 'wondered', 'mystery', 'locked', 'question', 'strange'];
+const PLOT_KW = ['attack', 'reveal', 'discover', 'escape', 'trap', 'decide', 'choose', 'confront', 'find', 'plan', 'search', 'run', 'hide', 'seek', 'journey', 'arrive', 'leave', 'kill', 'save', 'protect', 'destroy', 'build'];
+const CHARACTER_KW = ['realize', 'understand', 'change', 'accept', 'refuse', 'grief', 'memory', 'belief', 'feel', 'hurt', 'pain', 'hope', 'fear', 'wonder', 'wish', 'want', 'need', 'love', 'hate', 'know', 'think', 'remember'];
+const ROMANCE_KW = ['kiss', 'touch', 'pull', 'tension', 'desire', 'resist', 'yield', 'burn', 'breath', 'lips', 'skin', 'eyes', 'glance', 'stare', 'warmth', 'shiver', 'ache', 'craving', 'chest', 'pulse', 'heart'];
+const WORLD_KW = ['history', 'lore', 'rule', 'magic', 'realm', 'system', 'court', 'explain', 'gods', 'ancient', 'power', 'spell', 'curse', 'king', 'queen', 'throne', 'war', 'past', 'legend'];
+const CONFLICT_KW = ['argue', 'fight', 'demand', 'snap', 'hiss', 'threaten', 'strike', 'clash', 'yell', 'scream', 'glare', 'scowl', 'battle', 'war', 'sword', 'blade', 'blood', 'punch', 'shove', 'force'];
+const PASSIVITY_KW = ['watched', 'waited', 'stood there', 'listened', 'observed', 'nodded', 'followed', 'stared', 'did nothing', 'could only'];
+const SETUP_KW = ['secret', 'hidden', 'wondered', 'mystery', 'locked', 'question', 'strange', 'unusual', 'peculiar', 'shadow', 'curious', 'unknown'];
 
 export function classifyChapterPurposeDetailed(chapter) {
   const flags = [];
@@ -25,11 +25,11 @@ export function classifyChapterPurposeDetailed(chapter) {
 
   let cpScore = 50; // Base score
   const purposes = [];
-  if (plotHits > 3) purposes.push('Plot Advancement');
-  if (charHits > 5) purposes.push('Character Development');
-  if (romHits > 5) purposes.push('Romance Progression');
-  if (worldHits > 5) purposes.push('Worldbuilding');
-  if (conflictHits > 3) purposes.push('Conflict Escalation');
+  if (plotHits >= 2 || chapter.wordCount > 1500 && plotHits > 0) purposes.push('Plot Advancement');
+  if (charHits >= 3) purposes.push('Character Development');
+  if (romHits >= 3) purposes.push('Romance Progression');
+  if (worldHits >= 2) purposes.push('Worldbuilding');
+  if (conflictHits >= 2) purposes.push('Conflict Escalation');
 
   let executionLevel = 'Moderate';
 

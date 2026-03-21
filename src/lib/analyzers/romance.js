@@ -29,20 +29,24 @@ export function scanRomanceTension(chapter, settings = {}) {
     const paragraphs = text.split(/\n\s*\n|\n/).filter(p => p.trim());
     
     // Check if a Love Interest is in the scene
-    const activeLI = loveInterests.find(li => text.toLowerCase().includes(li.toLowerCase()));
-    if (!activeLI) return; // Skip scenes without the love interest
+    const activeLIs = loveInterests.filter(li => text.toLowerCase().includes(li.toLowerCase()));
+    if (activeLIs.length === 0) return; // Skip scenes without love interests
 
-    const attractionHits = ATTRACTION_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length, 0);
-    const resistanceHits = RESISTANCE_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length, 0);
-    const resolutionHits = RESOLUTION_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length, 0);
-    const proximityHits = PROXIMITY_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length, 0);
-    const powerHits = POWER_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(kw, 'g')) || []).length, 0);
+    const attractionHits = ATTRACTION_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
+    const resistanceHits = RESISTANCE_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
+    const resolutionHits = RESOLUTION_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
+    const proximityHits = PROXIMITY_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
+    const powerHits = POWER_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
     
     let rawTension = (attractionHits * 1.5) + (resistanceHits * 2) + (proximityHits * 1.5) + (powerHits * 2);
     if (resolutionHits > 0 && resistanceHits === 0) rawTension -= 5;
-    byCharacter[activeLI].tension += Math.max(0, rawTension);
     
-    const isDialogueHeavy = paragraphs.filter(p => /["“'”’]/.test(p)).length > paragraphs.length * 0.4;
+    const liNames = activeLIs.join(' & ');
+    activeLIs.forEach(li => {
+        byCharacter[li].tension += Math.max(0, rawTension);
+    });
+    
+    const isDialogueHeavy = paragraphs.filter(p => /["“”]/.test(p)).length > paragraphs.length * 0.4;
 
     // 1. Instant Attraction Collapse (High: -15)
     // Attraction + Acceptance without resistance
@@ -52,7 +56,7 @@ export function scanRomanceTension(chapter, settings = {}) {
         severity: -15,
         message: 'Attraction resolves without resistance.',
         suggestedFix: 'Add internal contradiction or physical hesitation.',
-        text: `Scene ${sceneIdx+1} with ${activeLI}`,
+        text: `Scene ${sceneIdx+1} with ${liNames}`,
         sceneIndex: sceneIdx
       });
       tensionScore -= 15;
@@ -66,7 +70,7 @@ export function scanRomanceTension(chapter, settings = {}) {
         severity: -10,
         message: 'Attraction lacks meaningful resistance or stakes.',
         suggestedFix: 'Introduce consequence or cost tied to desire.',
-        text: `Scene ${sceneIdx+1} with ${activeLI}`,
+        text: `Scene ${sceneIdx+1} with ${liNames}`,
         sceneIndex: sceneIdx
       });
       tensionScore -= 10;
@@ -94,20 +98,20 @@ export function scanRomanceTension(chapter, settings = {}) {
         severity: -10,
         message: 'Scene lacks tension progression (dialogue without movement).',
         suggestedFix: 'Add movement, proximity change, or dominance shift.',
-        text: `Scene ${sceneIdx+1} with ${activeLI}`,
+        text: `Scene ${sceneIdx+1} with ${liNames}`,
         sceneIndex: sceneIdx
       });
       tensionScore -= 10;
     }
 
-    // 5. No Proximity Escalation (Med: -5)
+    // 5. No Physical Escalation (Med: -5)
     if (attractionHits > 0 && proximityHits === 0) {
       flags.push({
         type: 'No Physical Escalation',
         severity: -5,
         message: 'Tension lacks spatial progression.',
         suggestedFix: 'Add distance changes to reflect emotional shift.',
-        text: `Scene ${sceneIdx+1} with ${activeLI}`,
+        text: `Scene ${sceneIdx+1} with ${liNames}`,
         sceneIndex: sceneIdx
       });
     }
@@ -125,7 +129,7 @@ export function scanRomanceTension(chapter, settings = {}) {
         severity: -5,
         message: 'Dialogue lacks subtext or tension (safe, polite responses).',
         suggestedFix: 'Add double meaning, challenge, or provocation.',
-        text: `Scene ${sceneIdx+1} with ${activeLI}`,
+        text: `Scene ${sceneIdx+1} with ${liNames}`,
         sceneIndex: sceneIdx
       });
     }

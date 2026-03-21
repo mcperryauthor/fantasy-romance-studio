@@ -439,10 +439,9 @@ export function buildManuscriptStats(analyzedChapters, settings = {}) {
   const romanceTotals = {}
   loveInterests.forEach(n => { romanceTotals[n] = 0 })
   analyzedChapters.forEach(c => {
-    const r = c.analysis?.romance?.score || 0
-    // Using the flat score since chapter romance is now a global scene chemistry score
-    // To support tracking it by target, we'd distribute but for now we'll just track global
-    loveInterests.forEach(n => { romanceTotals[n] += (c.rawText.includes(n) ? r : 0) })
+    loveInterests.forEach(n => { 
+        romanceTotals[n] += (c.analysis?.romance?.byCharacter?.[n]?.tension || 0) 
+    })
   })
 
   const conspiracyByChapter = analyzedChapters.map(c => ({

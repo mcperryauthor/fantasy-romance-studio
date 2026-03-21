@@ -38,12 +38,25 @@ export function scanRomanceTension(chapter, settings = {}) {
     const proximityHits = PROXIMITY_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
     const powerHits = POWER_KW.reduce((s, kw) => s + (text.toLowerCase().match(new RegExp(`\\b${kw}\\b`, 'g')) || []).length, 0);
     
-    let rawTension = (attractionHits * 1.5) + (resistanceHits * 2) + (proximityHits * 1.5) + (powerHits * 2);
-    if (resolutionHits > 0 && resistanceHits === 0) rawTension -= 5;
+    let rawTension = 0;
+    if (attractionHits > 0 || proximityHits > 0) {
+        if (resistanceHits === 0 && powerHits === 0) {
+            rawTension = Math.min(3.5, (attractionHits + proximityHits) * 0.5); 
+        } else if (resistanceHits > 0 && powerHits === 0) {
+            rawTension = Math.min(7.5, 3.5 + (resistanceHits * 1.5)); 
+        } else if (powerHits > 0) {
+            rawTension = Math.min(10, 7.0 + (powerHits * 1.5) + (resistanceHits ? 1 : 0)); 
+        }
+    } else if (powerHits > 0 || resistanceHits > 0) {
+        rawTension = Math.min(5, (powerHits * 1.5) + resistanceHits);
+    }
+    
+    if (resolutionHits > 0 && resistanceHits === 0) rawTension = Math.max(0, rawTension - 2);
     
     const liNames = activeLIs.join(' & ');
     activeLIs.forEach(li => {
-        byCharacter[li].tension += Math.max(0, rawTension);
+        // Tension is capped at 10 per chapter (taking the highest scene tension)
+        byCharacter[li].tension = Math.max(byCharacter[li].tension, rawTension);
     });
     
     const isDialogueHeavy = paragraphs.filter(p => /["“”]/.test(p)).length > paragraphs.length * 0.4;

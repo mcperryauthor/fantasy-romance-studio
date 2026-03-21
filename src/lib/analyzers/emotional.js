@@ -72,11 +72,16 @@ export function scanEmotionalArc(chapter) {
         arcPoints.push(extractPrimaryState(paragraphs.slice(Math.floor(pLen * 0.5), Math.floor(pLen * 0.75)).join(' ')));
         arcPoints.push(extractPrimaryState(paragraphs.slice(Math.floor(pLen * 0.75)).join(' ')));
     } else {
-        arcPoints = [entryState, exitState];
+        const openingText = paragraphs.slice(0, Math.max(1, Math.floor(pLen * 0.5))).join(' ');
+        const closingText = paragraphs.slice(-Math.max(1, Math.floor(pLen * 0.5))).join(' ');
+        arcPoints = [extractPrimaryState(openingText), extractPrimaryState(closingText)];
     }
     
     // Clean up adjacent duplicates
     const finalArc = arcPoints.filter((s, i) => i === 0 || s !== arcPoints[i-1]);
+    
+    const entryState = finalArc[0] || 'Neutral';
+    const exitState = finalArc[finalArc.length - 1] || 'Neutral';
     
     // Detect Behavior Change
     const behaviorHits = 

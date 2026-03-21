@@ -11,6 +11,7 @@ const EMOTION_KW = ['realize', 'decide', 'choose', 'accept', 'refuse', 'change',
 export function scanPacing(chapter) {
   const flags = [];
   const scenes = chapter.scenes || [];
+  const emittedRules = new Set();
   
   let totalScore = 100;
 
@@ -33,7 +34,7 @@ export function scanPacing(chapter) {
       if (!isDialogue && !hasAction) dragCount++;
       else dragCount = 0;
       
-      if (dragCount >= 3) {
+      if (dragCount >= 3 && !emittedRules.has('Pacing Drag')) {
         flags.push({
           type: 'Pacing Drag',
           severity: -15,
@@ -42,7 +43,7 @@ export function scanPacing(chapter) {
           text: p.slice(0, 50) + '...',
           sceneIndex: sceneIdx
         });
-        dragCount = 0; // Reset after flag
+        emittedRules.add('Pacing Drag');
       }
     });
 
@@ -64,7 +65,7 @@ export function scanPacing(chapter) {
 
     // 3. Internal Looping Detector (High: -10)
     const loopMatch = text.match(/\b(why\s(.*?)|\bi don't understand|\bdoesn't make sense)\b/gi);
-    if (loopMatch && loopMatch.length >= 3) {
+    if (loopMatch && loopMatch.length >= 3 && !emittedRules.has('Thought Loop')) {
       flags.push({
         type: 'Thought Loop',
         severity: -10,
@@ -73,6 +74,7 @@ export function scanPacing(chapter) {
         text: loopMatch.slice(0, 3).join(' | '),
         sceneIndex: sceneIdx
       });
+      emittedRules.add('Thought Loop');
     }
 
     // 4. Overloaded Density Detector (High: -10)
@@ -105,7 +107,7 @@ export function scanPacing(chapter) {
         } else {
             shortDialogueStreak = 0;
         }
-        if (shortDialogueStreak >= 4) {
+        if (shortDialogueStreak >= 4 && !emittedRules.has('Dialogue Stall')) {
             flags.push({
               type: 'Dialogue Stall',
               severity: -10,
@@ -114,7 +116,7 @@ export function scanPacing(chapter) {
               text: p.trim(),
               sceneIndex: sceneIdx
             });
-            shortDialogueStreak = 0;
+            emittedRules.add('Dialogue Stall');
         }
     });
 
@@ -130,7 +132,7 @@ export function scanPacing(chapter) {
             monotoneStreak = 0;
         }
         prevLen = len;
-        if (monotoneStreak >= 5) {
+        if (monotoneStreak >= 5 && !emittedRules.has('Rhythm Flatline')) {
             flags.push({
               type: 'Rhythm Flatline',
               severity: -5,
@@ -139,7 +141,7 @@ export function scanPacing(chapter) {
               text: sentences.slice(-3).join(' '),
               sceneIndex: sceneIdx
             });
-            monotoneStreak = 0;
+            emittedRules.add('Rhythm Flatline');
         }
     });
 

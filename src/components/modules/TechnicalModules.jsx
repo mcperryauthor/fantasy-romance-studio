@@ -103,6 +103,7 @@ export const ModulePacing = ({ chapter, onSelectFlag, activeFlag }) => {
         <StatCard label="Pacing Score" value={`${p.score || 0}/100`} color={p.score < 60 ? '#ffb8b8' : '#4cA87a'} />
         <StatCard label="Action Blocks" value={`${p.actionPct || 0}%`} color="var(--color-ivory)" />
         <StatCard label="Dialogue" value={`${p.dialogueRatio || 0}%`} color="var(--color-ivory)" />
+        <StatCard label="Reactive Internality" value={`${p.reactivePct || 0}%`} color="var(--color-ivory)" />
         <StatCard label="Introspection" value={`${p.introspectPct || 0}%`} color="var(--color-ivory)" />
         <StatCard label="Exposition" value={`${chapter?.analysis?.exposition?.density || 'N/A'}`} color="var(--color-ivory)" />
         <StatCard label="Romance Flow" value={`${p.interactionReactionResponse ? 'Cyclic' : 'Static'}`} color="var(--color-burgundy)" />

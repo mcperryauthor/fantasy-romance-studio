@@ -16,6 +16,10 @@ const MEMORY_MARKERS = ['before', 'once', 'used to', 'remembered', 'had been', '
 const HYPOTHETICALS = ['what if', 'maybe', "shouldn't", "can't", 'perhaps', 'if only'];
 const SENSORY_JUDGMENT = ['ruthless', 'beautiful', 'sickly', 'brittle', 'violent', 'benevolent', 'perfect', 'flawless', 'effortless', 'eternal', 'warm', 'cold', 'sharp', 'soft', 'heavy', 'light', 'dark', 'bright', 'bitter', 'sweet', 'hollow', 'cruel', 'kind', 'harsh', 'gentle'];
 
+// STEP 3: REACTIVE INTERNALITY LEXICON
+// Physical/Behavioral responses driven by internal emotion (Suppression, proximity, visceral response)
+const REACTIVE_KW = ['throat closes', 'breath shallow', 'flinch', 'shiver', 'tremble', 'flatten', 'stillness', 'resist the urge', 'hold back', 'force myself', 'refuse to', 'swallow', 'stutter', 'clench', 'jaw tightened', 'heart raced', 'pulse', 'nausea', 'bile', 'breath hitched', 'shaking', 'shrank', 'froze'];
+
 // Helpers
 function countHits(text, lexicons) {
     const lo = text.toLowerCase();
@@ -35,6 +39,7 @@ export function scanPacing(chapter) {
     let totalActionBlocks = 0;
     let totalIntroBlocks = 0;
     let totalDialogueBlocks = 0;
+    let totalReactiveBlocks = 0;
     let totalParagraphs = 0;
 
     let hasGoodRomanceFlow = false;
@@ -77,8 +82,15 @@ export function scanPacing(chapter) {
 
             // STEP 3: SEGMENT CLASSIFICATION
             let classification = 'Neutral';
-            // Strict Categorization (No Hybrid Voids)
-            if (totalActionSignals > (totalIntroSignals + 1)) {
+            const reactiveHits = countHits(p, REACTIVE_KW);
+            
+            if (reactiveHits > 0) {
+                classification = 'REACTIVE';
+                totalReactiveBlocks++;
+                actionStreak = 0;
+                introStreak = 0;
+                romanceFlowPattern.push('R');
+            } else if (totalActionSignals > (totalIntroSignals + 1)) {
                 classification = 'ACTION';
                 totalActionBlocks++;
                 actionStreak++;
@@ -139,8 +151,8 @@ export function scanPacing(chapter) {
         });
 
         // 3. Action-Introspection Disconnect
-        // If the scene had massive action but 0 intro blocks
-        if (totalActionBlocks > 3 && totalIntroBlocks === 0 && !emittedRules.has('Action-Introspection Disconnect')) {
+        // If the scene had massive action but 0 intro blocks and 0 reactive blocks
+        if (totalActionBlocks > 3 && totalIntroBlocks === 0 && totalReactiveBlocks === 0 && !emittedRules.has('Action-Introspection Disconnect')) {
             flags.push({
                 type: 'Action-Introspection Disconnect',
                 severity: -10,
@@ -150,6 +162,19 @@ export function scanPacing(chapter) {
                 sceneIndex: sceneIdx
             });
             emittedRules.add('Action-Introspection Disconnect');
+        }
+
+        // 4. Positive Reinforcement: High-Level Prose
+        if (totalReactiveBlocks > 2 && !emittedRules.has('Reactive Mastery')) {
+            flags.push({
+                type: 'Reactive Mastery',
+                severity: 15, // Positive reward
+                message: 'Strong emotional grounding. Interaction leverages high-level reactive internality (showing vs telling).',
+                suggestedFix: 'Excellent emotional processing in real-time.',
+                text: 'Detected in Scene ' + (sceneIdx + 1),
+                sceneIndex: sceneIdx
+            });
+            emittedRules.add('Reactive Mastery');
         }
 
         // ROMANCE OVERLAY
@@ -200,6 +225,7 @@ export function scanPacing(chapter) {
     // Percentages
     const actionPct = totalParagraphs > 0 ? Math.round((totalActionBlocks / totalParagraphs) * 100) : 0;
     const introspectPct = totalParagraphs > 0 ? Math.round((totalIntroBlocks / totalParagraphs) * 100) : 0;
+    const reactivePct = totalParagraphs > 0 ? Math.round((totalReactiveBlocks / totalParagraphs) * 100) : 0;
     
     // Count exact paragraphs containing dialogue for a pure stat
     const dialogueRatio = totalParagraphs > 0 ? Math.round((totalDialogueBlocks / totalParagraphs) * 100) : 0;
@@ -207,6 +233,7 @@ export function scanPacing(chapter) {
     let flowPattern = 'Balanced';
     if (actionPct > 60) flowPattern = 'Action Heavy';
     if (introspectPct > 50) flowPattern = 'Introspection Heavy';
+    if (reactivePct > 25) flowPattern = 'Emotion-Driven (Balanced)'; // Overrides action heavy if reactive
 
     return {
         score: finalScore,
@@ -215,6 +242,7 @@ export function scanPacing(chapter) {
         // UI visualization variables
         actionPct,
         introspectPct,
+        reactivePct,
         dialogueRatio, 
         
         // New Overlay Data

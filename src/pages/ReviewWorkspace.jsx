@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../components/ui/Button';
 import { useProject } from '../context/ProjectContext';
 import ManuscriptDashboard from '../components/ManuscriptDashboard';
-import ManuscriptDashboard from '../components/ManuscriptDashboard';
 import { analysisModules } from '../data/modulesConfig';
 import { Edit3 } from 'lucide-react';
 

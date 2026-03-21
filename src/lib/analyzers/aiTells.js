@@ -10,6 +10,7 @@ const EMOTIONAL_DIAGNOSIS = /\b(i realize|i understand|i am (afraid|scared|terri
 const WORLDBUILDING_REP = /\b(in this world|as everyone knows|the system works by|is known for|has always been known to)\b/i;
 const PHILOSOPHICAL_NARRATION = /^(lies are|truth is|everyone knows|no one ever|men are|women are|monsters are|we all know)\b/i;
 const SCENE_WRAP_UP = /\b(that's when i realized|everything changed|from that moment|i finally understood|my life would never be the same)\b/i;
+const PHYSICAL_CLICHES = /\b(let out a breath|breath (he|she) didn't know|shiver ran down|eyes darkened|gaze darkened|heart hammered|swallowed hard)\b/i;
 
 // 3 or more comma-separated words followed by 'and' or a noun (Basic syntactic proxy for descriptor/sensory stacking)
 const DESCRIPTOR_STACK = /\b(\w+(?:ly|ic|ful|ous|ish|ed|ing|y|al|ive|less|en|ar)),\s+(\w+[^,\s]+),\s+(and\s+)?(\w+[^,\s]+)\s+(\w+)\b/i;
@@ -137,6 +138,18 @@ export function scanAIPatternsDetailed(chapter) {
           sentenceIndex: i
         });
       }
+    }
+
+    // 11. Tired Physical Cliches (Med)
+    if (PHYSICAL_CLICHES.test(s)) {
+      flags.push({
+        type: 'Tired Physical Response (Cliche)',
+        severity: 2,
+        message: 'A widely overused physical reaction phrase was detected.',
+        suggestedFix: 'Replace with a specific, visceral bodily reaction unique to this character.',
+        text: s,
+        sentenceIndex: i
+      });
     }
   }
 

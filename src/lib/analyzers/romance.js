@@ -3,13 +3,13 @@
  * Analyzes whether romantic interactions create sustained tension, escalation, and emotional pull.
  */
 
-const ATTRACTION_KW = ['beautiful', 'handsome', 'want', 'gaze', 'eyes', 'lips', 'breath', 'heart', 'pull', 'desire', 'ache', 'burn', 'heat'];
-const RESISTANCE_KW = ['shouldn\'t', 'wrong', 'can\'t', 'resist', 'fight', 'hate', 'turn away', 'stop', 'danger', 'mistake'];
+const ATTRACTION_KW = ['beautiful', 'handsome', 'want', 'gaze', 'eyes', 'lips', 'breath', 'heart', 'pull', 'desire', 'ache', 'burn', 'heat', 'obsess', 'ruin', 'hunger', 'starve', 'devour', 'shadow', 'mine'];
+const RESISTANCE_KW = ['shouldn\'t', 'wrong', 'can\'t', 'resist', 'fight', 'hate', 'turn away', 'stop', 'danger', 'mistake', 'monster', 'betray', 'enemy', 'destroy', 'curse', 'lie', 'never'];
 const RESOLUTION_KW = ['give in', 'don\'t care', 'surrender', 'accept', 'understand', 'let it happen'];
 const REPETITIVE_CHEMISTRY = /\b(heart races|heart pounded|can't breathe|breath caught|world narrowed|stomach dropped|shivered)\b/ig;
-const SAFE_DIALOGUE = /^(are you okay|yes|no|i'm fine|good|thank you|sorry)\b/i;
+const SAFE_DIALOGUE = /^(are you okay|yes|no|i'm fine|good|thank you|sorry|excuse me|pardon)\b/i;
 const PROXIMITY_KW = ['step closer', 'stepped', 'close', 'touch', 'brush', 'lean', 'against', 'skin', 'space between'];
-const POWER_KW = ['submit', 'command', 'obey', 'kneel', 'force', 'yield', 'trap', 'corner', 'stare down', 'chin', 'grip', 'hold'];
+const POWER_KW = ['submit', 'command', 'obey', 'kneel', 'force', 'yield', 'trap', 'corner', 'stare down', 'chin', 'grip', 'hold', 'leash', 'bow', 'claim', 'beg', 'throat', 'pulse', 'prey', 'predator', 'hunt', 'choke', 'shatter'];
 
 export function scanRomanceTension(chapter, settings = {}) {
   const flags = [];

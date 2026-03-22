@@ -78,7 +78,7 @@ export function parseManuscript(rawText, settings = {}) {
   let chapterIndex = 0
 
   const povChars = settings.povCharacters || POV_CHARACTERS;
-  const chapterPattern = /^(#{1,3}\s*)?(chapter\s+\d+|prologue|epilogue|\bpart\s+\d+)/i
+  const chapterPattern = /^CHAPTER_BREAK_MARKER:\s*(.+)|^(#{1,3}\s*)?(chapter\s+\d+|prologue|epilogue|\bpart\s+\d+)/i
   const sceneBreak = /^(\*\s*\*\s*\*|---+|#{3,}|~{3,}|\*{3,})$/
   const povCharsEscaped = (settings.povCharacters || POV_CHARACTERS).map(name => escapeRegExp(name));
   const povPattern = new RegExp(`^\\*{0,2}(${povCharsEscaped.join('|')})\\*{0,2}$|^POV:\\s*([A-Z][a-z]+)|^\\[([A-Z][a-z]+)\\]`, 'i');
@@ -88,7 +88,8 @@ export function parseManuscript(rawText, settings = {}) {
 
     if (chapterPattern.test(trimmed)) {
       chapterIndex++
-      const title = trimmed.replace(/^#+\s*/, '').trim() || `Chapter ${chapterIndex}`;
+      const markerMatch = trimmed.match(/^CHAPTER_BREAK_MARKER:\s*(.+)/i)
+      const title = markerMatch ? markerMatch[1].trim() : trimmed.replace(/^#+\s*/, '').trim() || `Chapter ${chapterIndex}`;
       
       // Inline POV Extraction: Check if the POV name is directly in the chapter title
       let extractedPov = null;
@@ -133,12 +134,27 @@ export function parseManuscript(rawText, settings = {}) {
       return
     }
 
-    const povMatch = trimmed.match(povPattern)
-    if (povMatch) {
-      const name = povMatch[1] || povMatch[2] || povMatch[3]
-      const properlyCased = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase()
-      if ((settings.povCharacters || POV_CHARACTERS).includes(properlyCased)) {
-        current.pov = properlyCased
+    const povMarkerMatch = trimmed.match(/^POV_MARKER:\s*(.+)/i)
+    let isPovLine = false
+    let nameToTest = null
+
+    if (povMarkerMatch) {
+       isPovLine = true
+       nameToTest = povMarkerMatch[1].trim()
+    } else {
+       const povMatch = trimmed.match(povPattern)
+       if (povMatch) {
+          isPovLine = true
+          nameToTest = povMatch[1] || povMatch[2] || povMatch[3]
+       }
+    }
+
+    if (isPovLine && nameToTest) {
+      const properlyCased = nameToTest.charAt(0).toUpperCase() + nameToTest.slice(1).toLowerCase()
+      // If the explicit marker is used, we only assign it if it matches known POVs, OR if it's a single word (new character).
+      // We don't want to assign "The old castle" as a POV if it's an H2 subtitle.
+      if ((settings.povCharacters || POV_CHARACTERS).includes(properlyCased) || (povMarkerMatch && !nameToTest.includes(' '))) {
+         current.pov = properlyCased;
       }
       return
     }

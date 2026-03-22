@@ -13,9 +13,23 @@ export async function extractTextFromFile(file, onProgress) {
   if (ext === 'docx') {
     onProgress?.('Parsing .docx…', 30)
     const arrayBuffer = await file.arrayBuffer()
-    const result = await mammoth.extractRawText({ arrayBuffer })
+    const options = {
+        styleMap: [
+            "p[style-name='Heading 1'] => h1:fresh",
+            "p[style-name='Heading 2'] => h2:fresh"
+        ]
+    };
+    const result = await mammoth.convertToHtml({ arrayBuffer }, options)
+    
+    // Map the explicitly styled HTMl tags into hardcoded marker strings for the dev analyzer
+    let text = result.value
+      .replace(/<h1>(.*?)<\/h1>/gi, '\n\nCHAPTER_BREAK_MARKER: $1\n\n')
+      .replace(/<h2>(.*?)<\/h2>/gi, '\n\nPOV_MARKER: $1\n\n')
+      .replace(/<p>(.*?)<\/p>/gi, '$1\n\n')
+      .replace(/<[^>]+>/g, ''); // Strip remaining inline HTML tags
+      
     onProgress?.('Done.', 100)
-    return result.value
+    return text
   }
 
   if (ext === 'pdf') {
